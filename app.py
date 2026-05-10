@@ -18,7 +18,7 @@ HTML = r"""<!DOCTYPE html>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Fee Nobel">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Simulador Fee-Based Â· Nobel Capital</title>
+<title>Simulador Fee-Based &#183; Nobel Capital</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:#050508;color:#f0f2ff;font-family:'Space Grotesk','Segoe UI',sans-serif;min-height:100vh;padding:20px 16px;font-size:14px}
@@ -28,33 +28,33 @@ HTML = r"""<!DOCTYPE html>
   @keyframes spin{to{transform:rotate(360deg)}}
   .card{background:#0d0d14;border:1px solid rgba(77,159,255,0.15);padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
   .card-line{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#4d9fff,transparent);opacity:0.35}
-  .card-title{font-family:monospace;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#4d9fff;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-  .lbl{display:block;font-size:10px;font-weight:500;color:rgba(240,242,255,0.45);letter-spacing:0.06em;margin-bottom:4px}
+  .card-title{font-family:monospace;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#4d9fff;margin-bottom:14px;display:flex;align-items:center;gap:8px;font-weight:700}
+  .lbl{display:block;font-size:10px;font-weight:700;color:rgba(240,242,255,0.65);letter-spacing:0.06em;margin-bottom:4px}
   .inp-wrap{display:flex;align-items:center;background:#050508;border:1px solid rgba(77,159,255,0.15)}
   .inp-pfx{padding:8px 9px;font-family:monospace;font-size:11px;color:#4d9fff;border-right:1px solid rgba(77,159,255,0.12);min-width:36px;text-align:center}
   .inp{flex:1;background:transparent;border:none;color:#f0f2ff;padding:8px 10px;font-family:inherit;font-size:14px;font-weight:500;outline:none;width:100%}
   .row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(240,242,255,0.07)}
-  .row-lbl{font-size:12px;color:rgba(240,242,255,0.45)}
+  .row-lbl{font-size:12px;color:rgba(240,242,255,0.65);font-weight:600}
   .row-val{font-family:monospace;font-size:12px;font-weight:700}
   .mono{font-family:'Space Mono','Courier New',monospace}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
   .grid-main{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
   .cls-card{background:#12121c;border:1px solid rgba(77,159,255,0.18);padding:9px 9px 7px}
   .cls-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-  .cls-name{font-size:9px;color:rgba(240,242,255,0.45)}
+  .cls-name{font-size:9px;color:rgba(240,242,255,0.7);font-weight:700}
   .cls-tag{font-family:monospace;font-size:7px;padding:1px 4px;letter-spacing:0.07em}
   .badge-green{background:rgba(61,255,160,0.1);color:#3dffa0}
   .badge-blue{background:rgba(77,159,255,0.1);color:#4d9fff}
   .badge-dim{background:rgba(240,242,255,0.05);color:rgba(240,242,255,0.35)}
   .badge-red{background:rgba(255,77,106,0.1);color:#ff4d6a}
   .ex-card{background:#12121c;border:1px solid rgba(255,77,106,0.12);padding:9px 9px 7px;opacity:0.5}
-  .section-sep{font-family:monospace;font-size:8px;color:rgba(77,159,255,0.45);text-transform:uppercase;letter-spacing:0.2em;margin:12px 0 8px}
+  .section-sep{font-family:monospace;font-size:8px;color:rgba(77,159,255,0.7);text-transform:uppercase;letter-spacing:0.2em;margin:12px 0 8px;font-weight:700}
   .drop-area{border:1.5px dashed rgba(77,159,255,0.22);background:#12121c;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all 0.2s;margin-bottom:0}
   .drop-area:hover,.drop-area.dragover{border-color:#4d9fff;background:rgba(77,159,255,0.05)}
   .drop-icon{font-size:22px;flex-shrink:0}
-  .drop-main{font-size:13px;color:#f0f2ff;font-weight:500}
+  .drop-main{font-size:13px;color:#f0f2ff;font-weight:600}
   .drop-main span{color:#4d9fff}
-  .drop-sub{font-family:monospace;font-size:9px;color:rgba(240,242,255,0.3);margin-top:2px}
+  .drop-sub{font-family:monospace;font-size:9px;color:rgba(240,242,255,0.4);margin-top:2px}
   .status{padding:9px 12px;font-family:monospace;font-size:10px;letter-spacing:0.06em;margin-top:10px}
   .status-loading{background:rgba(77,159,255,0.07);border:1px solid rgba(77,159,255,0.2);color:#4d9fff}
   .status-success{background:rgba(61,255,160,0.06);border:1px solid rgba(61,255,160,0.2);color:#3dffa0}
@@ -65,25 +65,24 @@ HTML = r"""<!DOCTYPE html>
   .pie-wrap{display:flex;align-items:center;gap:16px}
   .legend-item{display:flex;align-items:center;gap:7px;margin-bottom:7px;font-size:11px}
   .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-  .legend-lbl{flex:1;color:rgba(240,242,255,0.45);font-size:10px}
+  .legend-lbl{flex:1;color:rgba(240,242,255,0.65);font-size:10px;font-weight:600}
   .legend-val{font-family:monospace;font-size:10px;font-weight:700}
-  .legend-pct{font-family:monospace;font-size:8px;color:rgba(240,242,255,0.35)}
+  .legend-pct{font-family:monospace;font-size:8px;color:rgba(240,242,255,0.4)}
   .result-grid{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
   .result-right{text-align:center;min-width:110px}
-  .result-label{font-family:monospace;font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(240,242,255,0.35);margin-bottom:6px}
+  .result-label{font-family:monospace;font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(240,242,255,0.45);margin-bottom:6px}
   .result-big{font-size:36px;font-weight:700;letter-spacing:-0.03em;line-height:1}
-  .result-sub{font-family:monospace;font-size:9px;color:rgba(240,242,255,0.35);margin-top:5px}
+  .result-sub{font-family:monospace;font-size:9px;color:rgba(240,242,255,0.4);margin-top:5px}
   .be-badge{font-family:monospace;font-size:10px;color:#4d9fff;background:#12121c;border:1px solid rgba(77,159,255,0.18);padding:4px 10px;margin-top:8px;display:inline-block}
-  .bar-area{display:flex;gap:8px;height:160px;margin-top:14px;align-items:flex-end}
+  .bar-area{display:flex;gap:8px;height:180px;margin-top:14px;align-items:flex-end}
   .bar-year{flex:1;display:flex;flex-direction:column;align-items:center}
-  .bar-outer{width:100%;background:rgba(240,242,255,0.07);border:1px solid rgba(240,242,255,0.12);position:relative;display:flex;flex-direction:column;justify-content:flex-end}
-  .bar-inner{width:100%;background:linear-gradient(180deg,#7bbfff,#4d9fff);box-shadow:0 0 8px rgba(77,159,255,0.35);display:flex;align-items:center;justify-content:center;min-height:3px}
-  .bar-pct{font-family:monospace;font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.6)}
-  .bar-pct-out{font-family:monospace;font-size:9px;font-weight:700;color:#4d9fff;margin-top:2px}
-  .bar-amt{font-family:monospace;font-size:8px;color:rgba(240,242,255,0.35);margin-bottom:3px;text-align:center;white-space:nowrap}
-  .bar-lbl{font-family:monospace;font-size:9px;color:rgba(240,242,255,0.45);margin-top:6px}
+  .bar-outer{width:100%;background:rgba(240,242,255,0.06);border:1px solid rgba(240,242,255,0.12);position:relative;display:flex;flex-direction:column;justify-content:flex-end}
+  .bar-inner{width:100%;background:linear-gradient(180deg,#7bbfff,#4d9fff);box-shadow:0 0 8px rgba(77,159,255,0.4);display:flex;align-items:center;justify-content:center}
+  .bar-pct{font-family:monospace;font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.8)}
+  .bar-amt{font-family:monospace;font-size:8px;color:rgba(240,242,255,0.55);margin-bottom:3px;text-align:center;white-space:nowrap;font-weight:600}
+  .bar-lbl{font-family:monospace;font-size:9px;color:rgba(240,242,255,0.7);margin-top:6px;font-weight:700}
   .legend-bar{display:flex;gap:14px;margin-top:8px}
-  .legend-bar-item{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(240,242,255,0.4)}
+  .legend-bar-item{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(240,242,255,0.55);font-weight:600}
   .legend-bar-dot{width:7px;height:7px}
   .glow-border{border-color:#3dffa0!important}
   .glow-text{color:#3dffa0!important}
@@ -98,9 +97,9 @@ HTML = r"""<!DOCTYPE html>
 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px">
   <div>
     <div style="font-size:24px;font-weight:700;letter-spacing:-0.02em;background:linear-gradient(135deg,#f0f2ff,#7bbfff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Simulador Fee-Based</div>
-    <div class="mono" style="font-size:9px;color:rgba(240,242,255,0.35);letter-spacing:0.18em;text-transform:uppercase;margin-top:4px">Nobel Capital Â· Advisory</div>
+    <div class="mono" style="font-size:9px;color:rgba(240,242,255,0.4);letter-spacing:0.18em;text-transform:uppercase;margin-top:4px">Nobel Capital &#183; Advisory</div>
   </div>
-  <div class="mono" style="background:#12121c;border:1px solid rgba(77,159,255,0.15);padding:5px 10px;font-size:9px;color:#4d9fff;letter-spacing:0.12em;text-transform:uppercase">v3 Â· 2026</div>
+  <div class="mono" style="background:#12121c;border:1px solid rgba(77,159,255,0.15);padding:5px 10px;font-size:9px;color:#4d9fff;letter-spacing:0.12em;text-transform:uppercase">v3 &#183; 2026</div>
 </div>
 <div class="card">
   <div class="card-line"></div>
@@ -109,7 +108,7 @@ HTML = r"""<!DOCTYPE html>
     <span class="drop-icon">&#128196;</span>
     <div>
       <div class="drop-main"><span>Arraste o extrato</span> ou clique para selecionar</div>
-      <div class="drop-sub">PDF &middot; XP Performance, extrato de posiÃ§Ã£o, carteira consolidada</div>
+      <div class="drop-sub">PDF &#183; XP Performance, extrato de posi&#231;&#227;o, carteira consolidada</div>
     </div>
     <input id="fileInput" type="file" accept="application/pdf" style="display:none">
   </div>
@@ -118,28 +117,28 @@ HTML = r"""<!DOCTYPE html>
 <div class="grid-main">
   <div class="card">
     <div class="card-line"></div>
-    <div class="card-title">Base ElegÃ­vel por Classe</div>
+    <div class="card-title">Base Eleg&#237;vel por Classe</div>
     <div id="clientName" class="client-name" style="display:none"></div>
     <div class="grid2">
       <div class="cls-card"><div class="cls-head"><span class="cls-name">Renda Fixa</span><span class="cls-tag badge-green">+spread</span></div><div class="inp-wrap" id="wrap-rf"><span class="inp-pfx">R$</span><input type="number" id="inp-rf" class="inp" value="500000" step="10000"></div></div>
       <div class="cls-card"><div class="cls-head"><span class="cls-name">Fundos</span><span class="cls-tag badge-blue">rebate</span></div><div class="inp-wrap" id="wrap-fd"><span class="inp-pfx">R$</span><input type="number" id="inp-fd" class="inp" value="300000" step="10000"></div></div>
-      <div class="cls-card"><div class="cls-head"><span class="cls-name">PrevidÃªncia</span><span class="cls-tag badge-blue">rebate</span></div><div class="inp-wrap" id="wrap-pv"><span class="inp-pfx">R$</span><input type="number" id="inp-pv" class="inp" value="100000" step="10000"></div></div>
+      <div class="cls-card"><div class="cls-head"><span class="cls-name">Previd&#234;ncia</span><span class="cls-tag badge-blue">rebate</span></div><div class="inp-wrap" id="wrap-pv"><span class="inp-pfx">R$</span><input type="number" id="inp-pv" class="inp" value="100000" step="10000"></div></div>
       <div class="cls-card"><div class="cls-head"><span class="cls-name">COEs</span><span class="cls-tag badge-dim">sem spread</span></div><div class="inp-wrap" id="wrap-co"><span class="inp-pfx">R$</span><input type="number" id="inp-co" class="inp" value="100000" step="10000"></div></div>
     </div>
-    <div class="ex-card"><div class="cls-head"><span class="cls-name">AÃ§Ãµes + FIIs â excluÃ­dos</span><span class="cls-tag badge-red">fora</span></div><div class="inp-wrap"><span class="inp-pfx">R$</span><input type="number" id="inp-ex" class="inp" value="0" step="10000"></div></div>
+    <div class="ex-card"><div class="cls-head"><span class="cls-name">A&#231;&#245;es + FIIs &#8212; exclu&#237;dos</span><span class="cls-tag badge-red">fora</span></div><div class="inp-wrap"><span class="inp-pfx">R$</span><input type="number" id="inp-ex" class="inp" value="0" step="10000"></div></div>
   </div>
   <div class="card">
     <div class="card-line"></div>
-    <div class="card-title">ParÃ¢metros do Fee</div>
+    <div class="card-title">Par&#226;metros do Fee</div>
     <div><label class="lbl">Fee Proposto (% a.a.)</label><div class="inp-wrap"><span class="inp-pfx">%</span><input type="number" id="inp-fee" class="inp" value="0.9" step="0.05"></div></div>
-    <div class="section-sep">â ganhos no modelo fee</div>
+    <div class="section-sep">&#8212; ganhos no modelo fee</div>
     <div style="margin-bottom:10px"><label class="lbl">Spread RF vs. Transacional (% a.a.)</label><div class="inp-wrap"><span class="inp-pfx">%</span><input type="number" id="inp-sp" class="inp" value="0.4" step="0.05"></div></div>
     <div style="margin-bottom:10px"><label class="lbl">Rebate Fundos (% a.a.)</label><div class="inp-wrap"><span class="inp-pfx">%</span><input type="number" id="inp-rbF" class="inp" value="0.5" step="0.05"></div></div>
-    <div><label class="lbl">Rebate PrevidÃªncia (% a.a.)</label><div class="inp-wrap"><span class="inp-pfx">%</span><input type="number" id="inp-rbP" class="inp" value="0.3" step="0.05"></div></div>
+    <div><label class="lbl">Rebate Previd&#234;ncia (% a.a.)</label><div class="inp-wrap"><span class="inp-pfx">%</span><input type="number" id="inp-rbP" class="inp" value="0.3" step="0.05"></div></div>
   </div>
   <div class="card">
     <div class="card-line"></div>
-    <div class="card-title">ComposiÃ§Ã£o da Base</div>
+    <div class="card-title">Composi&#231;&#227;o da Base</div>
     <div class="pie-wrap"><canvas id="pieChart" width="130" height="130" style="flex-shrink:0"></canvas><div id="legend" style="flex:1"></div></div>
   </div>
   <div class="card">
@@ -154,11 +153,11 @@ HTML = r"""<!DOCTYPE html>
     <div class="card-line"></div>
     <div class="card-title">Custo Acumulado 5 Anos</div>
     <div class="bar-area" id="barChart"></div>
-    <div class="legend-bar"><div class="legend-bar-item"><div class="legend-bar-dot" style="background:rgba(240,242,255,0.08);border:1px solid rgba(240,242,255,0.12)"></div>Fee bruto</div><div class="legend-bar-item"><div class="legend-bar-dot" style="background:#4d9fff"></div>Custo l&#237;quido</div></div>
+    <div class="legend-bar"><div class="legend-bar-item"><div class="legend-bar-dot" style="background:rgba(240,242,255,0.08);border:1px solid rgba(240,242,255,0.15)"></div>Fee bruto</div><div class="legend-bar-item"><div class="legend-bar-dot" style="background:#4d9fff"></div>Custo l&#237;quido</div></div>
   </div>
 </div>
 <script>
-const PIE_COLORS=["#4d9fff","#7bbfff","#b8d8ff","#ffffff"],PIE_LABELS=["Renda Fixa","Fundos","PrevidÃªncia","COEs"];
+const PIE_COLORS=["#4d9fff","#7bbfff","#b8d8ff","#ffffff"],PIE_LABELS=["Renda Fixa","Fundos","Previd\u00eancia","COEs"];
 function fmtR(v){return"R$\u00a0"+Math.abs(Math.round(v)).toLocaleString("pt-BR")}
 function fmtP(v){return(v*100).toFixed(3).replace(".",",")+"%"}
 function val(id){return parseFloat(document.getElementById(id).value)||0}
@@ -168,15 +167,15 @@ function calc(){
   const base=rf+fd+pv+co,fD=fee/100,spD=sp/100,rbFD=rbF/100,rbPD=rbP/100;
   const feeA=base*fD,gSp=rf*spD,gRF=fd*rbFD,gRP=pv*rbPD,gain=gSp+gRF+gRP,liq=feeA-gain;
   const liqPct=base>0?liq/base:0;
-  const be=liq<=0?"Imediato":gain>0?(liq/gain).toFixed(1).replace(".",",")+"\u00a0anos":"â";
+  const be=liq<=0?"Imediato":gain>0?(liq/gain).toFixed(1).replace(".",",")+"\u00a0anos":"\u2014";
   const vCol=liqPct<=0?"#3dffa0":liqPct<0.004?"#4d9fff":"#ff4d6a";
   return{rf,fd,pv,co,base,feeA,gSp,gRF,gRP,gain,liq,liqPct,be,vCol,fee:fD};
 }
 function drawPie(){
   const{rf,fd,pv,co,base}=calc(),vals=[rf,fd,pv,co];
   const c=document.getElementById("pieChart"),ctx=c.getContext("2d");
-  const W=c.width,I=c.height,cx=W/2,cy=I/2,r=W/2-5;
-  ctx.clearRect(0,0,W,I);let s=-Math.PI/2;
+  const W=c.width,H=c.height,cx=W/2,cy=H/2,r=W/2-5;
+  ctx.clearRect(0,0,W,H);let s=-Math.PI/2;
   vals.forEach((v,i)=>{
     if(v<=0||base<=0)return;const sl=(v/base)*2*Math.PI;
     ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,s,s+sl);ctx.closePath();
@@ -190,7 +189,7 @@ function drawPie(){
   const leg=document.getElementById("legend");leg.innerHTML="";
   vals.forEach((v,i)=>{
     if(v<=0)return;const div=document.createElement("div");div.className="legend-item";
-    div.innerHTML=`<div class="legend-dot" style="background:${PIE_COLORS[i]};${i===0?"box-shadow:0 0 5px rgba(77,159,255,0.6)":""}"></div><span class="legend-lbl">${PIE_LABELS[i]}</span><span class="legend-val">${fmtR(v)}</span><span class="legend-pct">${base>0?((v/base)*100).toFixed(1).replace(".",",")+"%":""}</span>`;
+    div.innerHTML<`<div class="legend-dot" style="background:${PIE_COLORS[i]};${i===0?"box-shadow:0 0 5px rgba(77,159,255,0.6)":""}"></div><span class="legend-lbl">${PIE_LABELS[i]}</span><span class="legend-val">${fmtR(v)}</span><span class="legend-pct">${base>0?((v/base)*100).toFixed(1).replace(".",",")+"%":""}</span>`;
     leg.appendChild(div);
   });
 }
@@ -205,18 +204,29 @@ function drawResult(){
 }
 function drawBars(){
   const{base,liqPct,fee}=calc();
-  const container=document.getElementById("barChart");container.innerHTML="";
-  if(base<=0)return;
-  const maxH=110,feeMax=base*fee*5;
+  const container=document.getElementById("barChart");
+  container.innerHTML="";
+  // Bars always rendered â grow from minBH (Ano 1) to maxBH (Ano 5)
+  const minBH=45,maxBH=140,minInner=28;
   for(let y=1;y<=5;y++){
-    const feeT=base*fee*y,liqT=Math.max(0,base*liqPct*y);
+    const feeT=base>0?base*fee*y:0;
+    const liqT=base>0?Math.max(0,base*liqPct*y):0;
     const ratio=feeT>0?liqT/feeT:0;
-    const bH=fueMax>0?Math.max(10,(feeT/feeMax)*maxH):10;
-    const lI=Math.max(3,ratio*bH);
-    const pct=(ratio*100).toFixed(1).replace(".",",")+"%";
-    const showInside=lI>=18;
-    const col=document.createElement("div");col.className="bar-year";
-    col.innerHTML=`<div class="bar-amt">${fmtR(feeT)}</div><div class="bar-outer" style="height:${bH}px"><div class="bar-inner" style="height:${lI}px">${showInside?`<span class="bar-pct">${pct}</span>`:''}</div></div>${!showInside?`<div class="bar-pct-out">${pct}</div>`:''}<div class="bar-lbl">Ano ${y}</div>`;
+    // Outer bar grows linearly from minBH to maxBH
+    const bH=minBH+(maxBH-minBH)*((y-1)/4);
+    // Inner bar: at least minInner px so % text always fits inside
+    const lH=Math.max(minInner,ratio*bH);
+    const pct=base>0?(ratio*100).toFixed(1).replace(".",",")+"%":"â";
+    const amt=base>0?fmtR(feeT):"â";
+    const col=document.createElement("div");
+    col.className="bar-year";
+    col.innerHTML=`<div class="bar-amt">${amt}</div>`+
+      `<div class="bar-outer" style="height:${bH}px">`+
+        `<div class="bar-inner" style="height:${lH}px">`+
+          `<span class="bar-pct">${pct}</span>`+
+        `</div>`+
+      `</div>`+
+      `<div class="bar-lbl">Ano ${y}</div>`;
     container.appendChild(col);
   }
 }
@@ -250,7 +260,7 @@ async function processPDF(file){
   try{
     const resp=await fetch("/proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
       model:"claude-sonnet-4-6",max_tokens:1024,
-      system:`VocÃª Ã© um extrator de dados financeiros. Sua ÃNICA saÃ­da permitida Ã© um objeto JSON vÃ¡lido, sem nenhum texto antes ou depois.\n\nFormato obrigatÃ³rio (nÃºmeros sem formataÃ§Ã£o):\n{"nome":"string ou null","rf":number,"fundos":number,"prev":number,"coe":number,"excluidos":number}\n\nClassificaÃ§Ã£o:\n- rf: CDB, LCI, LCA, LCD, CRI, CRA, DebÃªntures, NTN-B, Tesouro Direto\n- fundos: Fundos de Investimento (exceto previdÃªncia)\n- prev: VGBL, PGBL, PrevidÃªncia\n- coe: COE\n- excluidos: AÃ§Ãµes e FIIs\n- use 0 quando a classe nÃ£o existe\n\nSe nÃ£o for extrato financeiro: {"erro":"documento nÃ£o reconhecido"}\n\nPROIBIDO: texto explicativo, markdown, comentÃ¡rios. APENAS JSON.`,
+      system:"VocÃª Ã© um extrator de dados financeiros. Sua ÃNICA saÃ­da permitida Ã© um objeto JSON vÃ¡lido, sem nenhum texto antes ou depois.\n\nFormato obrigatÃ³rio (nÃºmeros sem formataÃ§Ã£o):\n{\"nome\":\"string ou null\",\"rf\":number,\"fundos\":number,\"prev\":number,\"coe\":number,\"excluidos\":number}\n\nClassificaÃ§Ã£o:\n- rf: CDB, LCI, LCA, LCD, CRI, CRA, DebÃªntures, NTN-B, Tesouro Direto\n- fundos: Fundos de Investimento (exceto previdÃªncia)\n- prev: VGBL, PGBL, PrevidÃªncia\n- coe: COE\n- excluidos: AÃ§Ãµes e FIIs\n- use 0 quando a classe nÃ£o existe\n\nSe nÃ£o for extrato financeiro: {\"erro\":\"documento nÃ£o reconhecido\"}\n\nPROIBIDO: texto explicativo, markdown, comentÃ¡rios. APENAS JSON.",
       messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"Retorne APENAS o objeto JSON com os totais por classe de ativo."}]}]
     })});
     const res=await resp.json();
@@ -265,10 +275,10 @@ async function processPDF(file){
     if(data.prev!=null)document.getElementById("inp-pv").value=data.prev||0;
     if(data.coe!=null)document.getElementById("inp-co").value=data.coe||0;
     if(data.excluidos!=null)document.getElementById("inp-ex").value=data.excluidos||0;
-    if(data.nome){const cn=document.getElementById("clientName");cn.textContent="â¸ "+data.nome.toUpperCase();cn.style.display="block";}
+    if(data.nome){const cn=document.getElementById("clientName");cn.textContent="\u25b8 "+data.nome.toUpperCase();cn.style.display="block";}
     update();triggerGlow();
     const tot=(data.rf||0)+(data.fundos||0)+(data.prev||0)+(data.coe||0)+(data.excluidos||0);
-    setStatus("success","&#10003; "+(data.nome?data.nome+" Â· ":"")+"Total "+fmtR(tot),file.name);
+    setStatus("success","&#10003; "+(data.nome?data.nome+" \u00b7 ":"")+"Total "+fmtR(tot),file.name);
   }catch(e){setStatus("error","&#9888; "+e.message);}
 }
 update();
