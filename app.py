@@ -74,12 +74,14 @@ HTML = r"""<!DOCTYPE html>
   .result-big{font-size:36px;font-weight:700;letter-spacing:-0.03em;line-height:1}
   .result-sub{font-family:monospace;font-size:9px;color:rgba(240,242,255,0.35);margin-top:5px}
   .be-badge{font-family:monospace;font-size:10px;color:#4d9fff;background:#12121c;border:1px solid rgba(77,159,255,0.18);padding:4px 10px;margin-top:8px;display:inline-block}
-  .bar-area{display:flex;gap:8px;align-items:flex-end;height:90px;margin-top:10px}
-  .bar-year{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
-  .bar-cols{width:100%;display:flex;gap:2px;align-items:flex-end;height:82px}
-  .bar-bruto{flex:1;background:rgba(240,242,255,0.08);border:1px solid rgba(240,242,255,0.12);min-height:2px}
-  .bar-liq{flex:1;background:linear-gradient(180deg,#7bbfff,#4d9fff);box-shadow:0 0 6px rgba(77,159,255,0.4);min-height:2px}
-  .bar-lbl{font-family:monospace;font-size:8px;color:rgba(240,242,255,0.35)}
+  .bar-area{display:flex;gap:8px;height:160px;margin-top:14px;align-items:flex-end}
+  .bar-year{flex:1;display:flex;flex-direction:column;align-items:center}
+  .bar-outer{width:100%;background:rgba(240,242,255,0.07);border:1px solid rgba(240,242,255,0.12);position:relative;display:flex;flex-direction:column;justify-content:flex-end}
+  .bar-inner{width:100%;background:linear-gradient(180deg,#7bbfff,#4d9fff);box-shadow:0 0 8px rgba(77,159,255,0.35);display:flex;align-items:center;justify-content:center;min-height:3px}
+  .bar-pct{font-family:monospace;font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.6)}
+  .bar-pct-out{font-family:monospace;font-size:9px;font-weight:700;color:#4d9fff;margin-top:2px}
+  .bar-amt{font-family:monospace;font-size:8px;color:rgba(240,242,255,0.35);margin-bottom:3px;text-align:center;white-space:nowrap}
+  .bar-lbl{font-family:monospace;font-size:9px;color:rgba(240,242,255,0.45);margin-top:6px}
   .legend-bar{display:flex;gap:14px;margin-top:8px}
   .legend-bar-item{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(240,242,255,0.4)}
   .legend-bar-dot{width:7px;height:7px}
@@ -145,14 +147,14 @@ HTML = r"""<!DOCTYPE html>
     <div class="card-title">Resultado</div>
     <div class="result-grid">
       <div id="resultRows"></div>
-      <div class="result-right"><div class="result-label">Custo LÃ­quido</div><div id="resultBig" class="result-big"></div><div id="resultSub" class="result-sub"></div><div id="resultBE" class="be-badge"></div></div>
+      <div class="result-right"><div class="result-label">Custo L&#237;quido</div><div id="resultBig" class="result-big"></div><div id="resultSub" class="result-sub"></div><div id="resultBE" class="be-badge"></div></div>
     </div>
   </div>
   <div class="card" style="grid-column:1 / -1">
     <div class="card-line"></div>
     <div class="card-title">Custo Acumulado 5 Anos</div>
     <div class="bar-area" id="barChart"></div>
-    <div class="legend-bar"><div class="legend-bar-item"><div class="legend-bar-dot" style="background:rgba(240,242,255,0.08);border:1px solid rgba(240,242,255,0.12)"></div>Fee bruto</div><div class="legend-bar-item"><div class="legend-bar-dot" style="background:#4d9fff"></div>Custo lÃ­quido</div></div>
+    <div class="legend-bar"><div class="legend-bar-item"><div class="legend-bar-dot" style="background:rgba(240,242,255,0.08);border:1px solid rgba(240,242,255,0.12)"></div>Fee bruto</div><div class="legend-bar-item"><div class="legend-bar-dot" style="background:#4d9fff"></div>Custo l&#237;quido</div></div>
   </div>
 </div>
 <script>
@@ -173,8 +175,8 @@ function calc(){
 function drawPie(){
   const{rf,fd,pv,co,base}=calc(),vals=[rf,fd,pv,co];
   const c=document.getElementById("pieChart"),ctx=c.getContext("2d");
-  const W=c.width,H=c.height,cx=W/2,cy=H/2,r=W/2-5;
-  ctx.clearRect(0,0,W,H);let s=-Math.PI/2;
+  const W=c.width,I=c.height,cx=W/2,cy=I/2,r=W/2-5;
+  ctx.clearRect(0,0,W,I);let s=-Math.PI/2;
   vals.forEach((v,i)=>{
     if(v<=0||base<=0)return;const sl=(v/base)*2*Math.PI;
     ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,s,s+sl);ctx.closePath();
@@ -188,7 +190,7 @@ function drawPie(){
   const leg=document.getElementById("legend");leg.innerHTML="";
   vals.forEach((v,i)=>{
     if(v<=0)return;const div=document.createElement("div");div.className="legend-item";
-    div.innerHTML<`<div class="legend-dot" style="background:${PIE_COLORS[i]};${i===0?"box-shadow:0 0 5px rgba(77,159,255,0.6)":""}"></div><span class="legend-lbl">${PIE_LABELS[i]}</span><span class="legend-val">${fmtR(v)}</span><span class="legend-pct">${base>0?((v/base)*100).toFixed(1).replace(".",",")+"%":""}</span>`;
+    div.innerHTML=`<div class="legend-dot" style="background:${PIE_COLORS[i]};${i===0?"box-shadow:0 0 5px rgba(77,159,255,0.6)":""}"></div><span class="legend-lbl">${PIE_LABELS[i]}</span><span class="legend-val">${fmtR(v)}</span><span class="legend-pct">${base>0?((v/base)*100).toFixed(1).replace(".",",")+"%":""}</span>`;
     leg.appendChild(div);
   });
 }
@@ -202,13 +204,19 @@ function drawResult(){
   document.getElementById("resultBE").textContent="BE: "+be;
 }
 function drawBars(){
-  const{base,liqPct,fee}=calc(),maxBar=base*fee*5;
+  const{base,liqPct,fee}=calc();
   const container=document.getElementById("barChart");container.innerHTML="";
+  if(base<=0)return;
+  const maxH=110,feeMax=base*fee*5;
   for(let y=1;y<=5;y++){
-    const t=base*fee*y,l=Math.max(0,base*liqPct*y),maxH=80;
-    const tH=maxBar>0?(t/maxBar)*maxH:2,fH=maxBar>0?(l/maxBar)*maxH:2;
+    const feeT=base*fee*y,liqT=Math.max(0,base*liqPct*y);
+    const ratio=feeT>0?liqT/feeT:0;
+    const bH=fueMax>0?Math.max(10,(feeT/feeMax)*maxH):10;
+    const lI=Math.max(3,ratio*bH);
+    const pct=(ratio*100).toFixed(1).replace(".",",")+"%";
+    const showInside=lI>=18;
     const col=document.createElement("div");col.className="bar-year";
-    col.innerHTML=`<div class="bar-cols"><div class="bar-bruto" style="height:${Math.max(tH,2)}px"></div><div class="bar-liq" style="height:${Math.max(fH,2)}px"></div></div><div class="bar-lbl">A%{y}</div>`;
+    col.innerHTML=`<div class="bar-amt">${fmtR(feeT)}</div><div class="bar-outer" style="height:${bH}px"><div class="bar-inner" style="height:${lI}px">${showInside?`<span class="bar-pct">${pct}</span>`:''}</div></div>${!showInside?`<div class="bar-pct-out">${pct}</div>`:''}<div class="bar-lbl">Ano ${y}</div>`;
     container.appendChild(col);
   }
 }
