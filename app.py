@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simulador Fee-Based Â· Nobel Capital
+Simulador Fee-Based · Nobel Capital
 Deploy em qualquer plataforma Python (Render, Railway, Fly.io)
 """
 import os, json, urllib.request, urllib.error
@@ -139,7 +139,11 @@ HTML = r"""<!DOCTYPE html>
   <div class="card">
     <div class="card-line"></div>
     <div class="card-title">Composi&#231;&#227;o da Base</div>
-    <div class="pie-wrap"><canvas id="pieChart" width="130" height="130" style="flex-shrink:0"></canvas><div id="legend" style="flex:1"></div></div>
+    <div style="font-family:monospace;font-size:7px;color:rgba(77,159,255,0.55);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:6px">&#9632; Fee-Based</div>
+    <div class="pie-wrap"><canvas id="pieChart" width="110" height="110" style="flex-shrink:0"></canvas><div id="legend" style="flex:1"></div></div>
+    <div style="height:1px;background:rgba(240,242,255,0.07);margin:12px 0"></div>
+    <div style="font-family:monospace;font-size:7px;color:rgba(255,77,106,0.55);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:6px">&#9632; Custo Transacional</div>
+    <div class="pie-wrap"><canvas id="pieChartTrans" width="110" height="110" style="flex-shrink:0"></canvas><div id="legendTrans" style="flex:1"></div></div>
   </div>
   <div class="card">
     <div class="card-line"></div>
@@ -157,8 +161,9 @@ HTML = r"""<!DOCTYPE html>
   </div>
 </div>
 <script>
-const PIE_COLORS=["#4d9fff","#7bbfff","#b8d8ff","#ffffff"],PIE_LABELS=["Renda Fixa","Fundos","Previd\u00eancia","COEs"];
-function fmtR(v){return"R$\u00a0"+Math.abs(Math.round(v)).toLocaleString("pt-BR")}
+const PIE_COLORS=["#4d9fff","#7bbfff","#b8d8ff","#ffffff"],PIE_LABELS=["Renda Fixa","Fundos","Previdência","COEs"];
+const PIE_COLORS_RED=["#ff4d6a","#ff8096","#ffb3bb"],PIE_LABELS_TRANS=["Spread RF","Rebate Fundos","Rebate Prev."];
+function fmtR(v){return"R$ "+Math.abs(Math.round(v)).toLocaleString("pt-BR")}
 function fmtP(v){return(v*100).toFixed(3).replace(".",",")+"%"}
 function val(id){return parseFloat(document.getElementById(id).value)||0}
 function calc(){
@@ -167,7 +172,7 @@ function calc(){
   const base=rf+fd+pv+co,fD=fee/100,spD=sp/100,rbFD=rbF/100,rbPD=rbP/100;
   const feeA=base*fD,gSp=rf*spD,gRF=fd*rbFD,gRP=pv*rbPD,gain=gSp+gRF+gRP,liq=feeA-gain;
   const liqPct=base>0?liq/base:0;
-  const be=liq<=0?"Imediato":gain>0?(liq/gain).toFixed(1).replace(".",",")+"\u00a0anos":"\u2014";
+  const be=liq<=0?"Imediato":gain>0?(liq/gain).toFixed(1).replace(".",",")+" anos":"—";
   const vCol=liqPct<=0?"#3dffa0":liqPct<0.004?"#4d9fff":"#ff4d6a";
   return{rf,fd,pv,co,base,feeA,gSp,gRF,gRP,gain,liq,liqPct,be,vCol,fee:fD};
 }
@@ -189,7 +194,41 @@ function drawPie(){
   const leg=document.getElementById("legend");leg.innerHTML="";
   vals.forEach((v,i)=>{
     if(v<=0)return;const div=document.createElement("div");div.className="legend-item";
-    div.innerHTML<`<div class="legend-dot" style="background:${PIE_COLORS[i]};${i===0?"box-shadow:0 0 5px rgba(77,159,255,0.6)":""}"></div><span class="legend-lbl">${PIE_LABELS[i]}</span><span class="legend-val">${fmtR(v)}</span><span class="legend-pct">${base>0?((v/base)*100).toFixed(1).replace(".",",")+"%":""}</span>`;
+    div.innerHTML=`<div class="legend-dot" style="background:${PIE_COLORS[i]};${i===0?"box-shadow:0 0 5px rgba(77,159,255,0.6)":""}"></div><span class="legend-lbl">${PIE_LABELS[i]}</span><span class="legend-val">${fmtR(v)}</span><span class="legend-pct">${base>0?((v/base)*100).toFixed(1).replace(".",",")+"%":""}</span>`;
+    leg.appendChild(div);
+  });
+}
+function drawPieTrans(){
+  const{gSp,gRF,gRP,base}=calc();
+  const vals=[gSp,gRF,gRP],total=gSp+gRF+gRP;
+  const c=document.getElementById("pieChartTrans"),ctx=c.getContext("2d");
+  const W=c.width,H=c.height,cx=W/2,cy=H/2,r=W/2-5;
+  ctx.clearRect(0,0,W,H);
+  if(total<=0||base<=0){
+    ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);ctx.fillStyle="rgba(255,77,106,0.08)";ctx.fill();
+    ctx.beginPath();ctx.arc(cx,cy,r*0.52,0,2*Math.PI);ctx.fillStyle="#0d0d14";ctx.fill();
+    ctx.fillStyle="rgba(240,242,255,0.3)";ctx.font="bold 9px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
+    ctx.fillText("—",cx,cy);
+    document.getElementById("legendTrans").innerHTML="";return;
+  }
+  let s=-Math.PI/2;
+  vals.forEach((v,i)=>{
+    if(v<=0)return;const sl=(v/total)*2*Math.PI;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,s,s+sl);ctx.closePath();
+    ctx.fillStyle=PIE_COLORS_RED[i];ctx.fill();
+    if(i===0){ctx.shadowColor="#ff4d6a";ctx.shadowBlur=10;ctx.fill();ctx.shadowBlur=0;}
+    s+=sl;
+  });
+  ctx.beginPath();ctx.arc(cx,cy,r*0.52,0,2*Math.PI);ctx.fillStyle="#0d0d14";ctx.fill();
+  ctx.fillStyle="#ff4d6a";ctx.font="bold 10px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
+  const pctTxt=base>0?((total/base)*100).toFixed(2).replace(".",",")+"%":"—";
+  ctx.fillText(pctTxt,cx,cy-6);
+  ctx.fillStyle="rgba(240,242,255,0.3)";ctx.font="7px monospace";
+  ctx.fillText("a.a.",cx,cy+7);
+  const leg=document.getElementById("legendTrans");leg.innerHTML="";
+  vals.forEach((v,i)=>{
+    if(v<=0)return;const div=document.createElement("div");div.className="legend-item";
+    div.innerHTML=`<div class="legend-dot" style="background:${PIE_COLORS_RED[i]};${i===0?"box-shadow:0 0 5px rgba(255,77,106,0.5)":""}"></div><span class="legend-lbl">${PIE_LABELS_TRANS[i]}</span><span class="legend-val" style="color:${PIE_COLORS_RED[i]}">${fmtR(v)}</span><span class="legend-pct">${base>0?((v/base)*100).toFixed(1).replace(".",",")+"%":""}</span>`;
     leg.appendChild(div);
   });
 }
@@ -206,7 +245,7 @@ function drawBars(){
   const{base,liqPct,fee}=calc();
   const container=document.getElementById("barChart");
   container.innerHTML="";
-  // Bars always rendered â grow from minBH (Ano 1) to maxBH (Ano 5)
+  // Bars always rendered — grow from minBH (Ano 1) to maxBH (Ano 5)
   const minBH=45,maxBH=140,minInner=28;
   for(let y=1;y<=5;y++){
     const feeT=base>0?base*fee*y:0;
@@ -216,8 +255,8 @@ function drawBars(){
     const bH=minBH+(maxBH-minBH)*((y-1)/4);
     // Inner bar: at least minInner px so % text always fits inside
     const lH=Math.max(minInner,ratio*bH);
-    const pct=base>0?(ratio*100).toFixed(1).replace(".",",")+"%":"â";
-    const amt=base>0?fmtR(feeT):"â";
+    const pct=base>0?(ratio*100).toFixed(1).replace(".",",")+"%":"—";
+    const amt=base>0?fmtR(feeT):"—";
     const col=document.createElement("div");
     col.className="bar-year";
     col.innerHTML=`<div class="bar-amt">${amt}</div>`+
@@ -230,7 +269,7 @@ function drawBars(){
     container.appendChild(col);
   }
 }
-function update(){drawPie();drawResult();drawBars();}
+function update(){drawPie();drawPieTrans();drawResult();drawBars();}
 document.querySelectorAll("input[type=number]").forEach(el=>el.addEventListener("input",update));
 const dropZone=document.getElementById("dropZone"),fileInput=document.getElementById("fileInput");
 dropZone.addEventListener("click",()=>fileInput.click());
@@ -256,11 +295,11 @@ async function processPDF(file){
   if(file.type!=="application/pdf"){setStatus("error","&#9888; Envie um arquivo PDF.");return;}
   setStatus("loading","Lendo PDF...",file.name);
   const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=()=>rej(new Error("Falha na leitura"));r.readAsDataURL(file);});
-  setStatus("loading","Extraindo posiÃ§Ãµes com IA...",file.name);
+  setStatus("loading","Extraindo posições com IA...",file.name);
   try{
     const resp=await fetch("/proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
       model:"claude-sonnet-4-6",max_tokens:1024,
-      system:"VocÃª Ã© um extrator de dados financeiros. Sua ÃNICA saÃ­da permitida Ã© um objeto JSON vÃ¡lido, sem nenhum texto antes ou depois.\n\nFormato obrigatÃ³rio (nÃºmeros sem formataÃ§Ã£o):\n{\"nome\":\"string ou null\",\"rf\":number,\"fundos\":number,\"prev\":number,\"coe\":number,\"excluidos\":number}\n\nClassificaÃ§Ã£o:\n- rf: CDB, LCI, LCA, LCD, CRI, CRA, DebÃªntures, NTN-B, Tesouro Direto\n- fundos: Fundos de Investimento (exceto previdÃªncia)\n- prev: VGBL, PGBL, PrevidÃªncia\n- coe: COE\n- excluidos: AÃ§Ãµes e FIIs\n- use 0 quando a classe nÃ£o existe\n\nSe nÃ£o for extrato financeiro: {\"erro\":\"documento nÃ£o reconhecido\"}\n\nPROIBIDO: texto explicativo, markdown, comentÃ¡rios. APENAS JSON.",
+      system:"Você é um extrator de dados financeiros. Sua ÚNICA saída permitida é um objeto JSON válido, sem nenhum texto antes ou depois.\n\nFormato obrigatório (números sem formatação):\n{\"nome\":\"string ou null\",\"rf\":number,\"fundos\":number,\"prev\":number,\"coe\":number,\"excluidos\":number}\n\nClassificação:\n- rf: CDB, LCI, LCA, LCD, CRI, CRA, Debêntures, NTN-B, Tesouro Direto\n- fundos: Fundos de Investimento (exceto previdência)\n- prev: VGBL, PGBL, Previdência\n- coe: COE\n- excluidos: Ações e FIIs\n- use 0 quando a classe não existe\n\nSe não for extrato financeiro: {\"erro\":\"documento não reconhecido\"}\n\nPROIBIDO: texto explicativo, markdown, comentários. APENAS JSON.",
       messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"Retorne APENAS o objeto JSON com os totais por classe de ativo."}]}]
     })});
     const res=await resp.json();
@@ -268,17 +307,17 @@ async function processPDF(file){
     const txt=res.content?.find(b=>b.type==="text")?.text||"";
     const match=txt.match(/\{[\s\S]*\}/);
     if(!match)throw new Error("Sem JSON na resposta: "+txt.slice(0,120));
-    let data;try{data=JSON.parse(match[0]);}catch(pe){throw new Error("JSON invÃ¡lido: "+match[0].slice(0,120));}
+    let data;try{data=JSON.parse(match[0]);}catch(pe){throw new Error("JSON inválido: "+match[0].slice(0,120));}
     if(data.erro){setStatus("error","&#9888; "+data.erro);return;}
     if(data.rf!=null)document.getElementById("inp-rf").value=data.rf||0;
     if(data.fundos!=null)document.getElementById("inp-fd").value=data.fundos||0;
     if(data.prev!=null)document.getElementById("inp-pv").value=data.prev||0;
     if(data.coe!=null)document.getElementById("inp-co").value=data.coe||0;
     if(data.excluidos!=null)document.getElementById("inp-ex").value=data.excluidos||0;
-    if(data.nome){const cn=document.getElementById("clientName");cn.textContent="\u25b8 "+data.nome.toUpperCase();cn.style.display="block";}
+    if(data.nome){const cn=document.getElementById("clientName");cn.textContent="▸ "+data.nome.toUpperCase();cn.style.display="block";}
     update();triggerGlow();
     const tot=(data.rf||0)+(data.fundos||0)+(data.prev||0)+(data.coe||0)+(data.excluidos||0);
-    setStatus("success","&#10003; "+(data.nome?data.nome+" \u00b7 ":"")+"Total "+fmtR(tot),file.name);
+    setStatus("success","&#10003; "+(data.nome?data.nome+" · ":"")+"Total "+fmtR(tot),file.name);
   }catch(e){setStatus("error","&#9888; "+e.message);}
 }
 update();
