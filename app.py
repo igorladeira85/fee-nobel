@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simulador Fee-Based · Nobel Capital
+Simulador Fee-Based Â· Nobel Capital
 Deploy em qualquer plataforma Python (Render, Railway, Fly.io)
 """
 import os, json, urllib.request, urllib.error
@@ -135,6 +135,8 @@ HTML = r"""<!DOCTYPE html>
     <div style="margin-bottom:10px"><label class="lbl">Spread RF vs. Transacional (% a.a.)</label><div class="inp-wrap"><span class="inp-pfx">%</span><input type="number" id="inp-sp" class="inp" value="0.4" step="0.05"></div></div>
     <div style="margin-bottom:10px"><label class="lbl">Rebate Fundos (% a.a.)</label><div class="inp-wrap"><span class="inp-pfx">%</span><input type="number" id="inp-rbF" class="inp" value="0.5" step="0.05"></div></div>
     <div><label class="lbl">Rebate Previd&#234;ncia (% a.a.)</label><div class="inp-wrap"><span class="inp-pfx">%</span><input type="number" id="inp-rbP" class="inp" value="0.3" step="0.05"></div></div>
+    <div class="section-sep">&#8212; custo de reaplica&#231;&#227;o trans.</div>
+    <div><label class="lbl">ROA Reaplica&#231;&#227;o (% s/ vencimentos)</label><div class="inp-wrap"><span class="inp-pfx">%</span><input type="number" id="inp-roa" class="inp" value="0.5" step="0.05" min="0.35" max="4"></div></div>
   </div>
   <div class="card">
     <div class="card-line"></div>
@@ -161,21 +163,22 @@ HTML = r"""<!DOCTYPE html>
   </div>
 </div>
 <script>
-const PIE_COLORS=["#4d9fff","#7bbfff","#b8d8ff","#ffffff"],PIE_LABELS=["Renda Fixa","Fundos","Previdência","COEs"];
+const PIE_COLORS=["#4d9fff","#7bbfff","#b8d8ff","#ffffff"],PIE_LABELS=["Renda Fixa","Fundos","Previd\u00eancia","COEs"];
 const PIE_COLORS_RED=["#ff2d50","#ff5570","#ff8a9a","#ffb3bb","#ffd6db"];
 let rfAno1=0,rfAno2=0;
-function fmtR(v){return"R$ "+Math.abs(Math.round(v)).toLocaleString("pt-BR")}
+function fmtR(v){return"R$\u00a0"+Math.abs(Math.round(v)).toLocaleString("pt-BR")}
 function fmtP(v){return(v*100).toFixed(3).replace(".",",")+"%"}
 function val(id){return parseFloat(document.getElementById(id).value)||0}
 function calc(){
   const rf=val("inp-rf"),fd=val("inp-fd"),pv=val("inp-pv"),co=val("inp-co");
-  const fee=val("inp-fee"),sp=val("inp-sp"),rbF=val("inp-rbF"),rbP=val("inp-rbP");
-  const base=rf+fd+pv+co,fD=fee/100,spD=sp/100,rbFD=rbF/100,rbPD=rbP/100;
-  const feeA=base*fD,gSp=rf*spD,gRF=fd*rbFD,gRP=pv*rbPD,gain=gSp+gRF+gRP,liq=feeA-gain;
+  const fee=val("inp-fee"),sp=val("inp-sp"),rbF=val("inp-rbF"),rbP=val("inp-rbP"),roa=val("inp-roa");
+  const base=rf+fd+pv+co,fD=fee/100,spD=sp/100,rbFD=rbF/100,rbPD=rbP/100,roaD=roa/100;
+  const feeA=base*fD,gSp=rf*spD,gRF=fd*rbFD,gRP=pv*rbPD,gROA=(rfAno1+rfAno2)*roaD;
+  const gain=gSp+gRF+gRP+gROA,liq=feeA-gain;
   const liqPct=base>0?liq/base:0;
-  const be=liq<=0?"Imediato":gain>0?(liq/gain).toFixed(1).replace(".",",")+" anos":"—";
+  const be=liq<=0?"Imediato":gain>0?(liq/gain).toFixed(1).replace(".",",")+"\u00a0anos":"\u2014";
   const vCol=liqPct<=0?"#3dffa0":liqPct<0.004?"#4d9fff":"#ff4d6a";
-  return{rf,fd,pv,co,base,feeA,gSp,gRF,gRP,gain,liq,liqPct,be,vCol,fee:fD};
+  return{rf,fd,pv,co,base,feeA,gSp,gRF,gRP,gROA,gain,liq,liqPct,be,vCol,fee:fD};
 }
 function drawPie(){
   const{rf,fd,pv,co,base}=calc(),vals=[rf,fd,pv,co];
@@ -200,20 +203,20 @@ function drawPie(){
   });
 }
 function drawPieTrans(){
-  const{gSp,gRF,gRP,base,rf}=calc();
+  const{gSp,gRF,gRP,gROA,base,rf}=calc();
   const spD=val("inp-sp")/100;
   const hasMatur=rfAno1>0||rfAno2>0;
   let vals,lbls,cols;
   if(hasMatur){
     const rfRest=Math.max(0,rf-rfAno1-rfAno2);
     const gSp1=rfAno1*spD,gSp2=rfAno2*spD,gSpR=rfRest*spD;
-    vals=[gSp1,gSp2,gSpR,gRF,gRP];
-    lbls=["Venc. Ano 1","Venc. Ano 2","RF Longo","Rebate Fundos","Rebate Prev."];
-    cols=["#ff2d50","#ff5570","#ff8a9a","#ffc5cc","#ffd6db"];
+    vals=[gROA,gSp1,gSp2,gSpR,gRF,gRP];
+    lbls=["ROA Vencimentos","Spread Ano 1","Spread Ano 2","Spread Longo","Rebate Fundos","Rebate Prev."];
+    cols=["#ff8c00","#ff2d50","#ff5570","#ff8a9a","#ffc5cc","#ffd6db"];
   }else{
-    vals=[gSp,gRF,gRP];
-    lbls=["Spread RF","Rebate Fundos","Rebate Prev."];
-    cols=["#ff4d6a","#ff8096","#ffb3bb"];
+    vals=[gROA,gSp,gRF,gRP];
+    lbls=["ROA Vencimentos","Spread RF","Rebate Fundos","Rebate Prev."];
+    cols=["#ff8c00","#ff4d6a","#ff8096","#ffb3bb"];
   }
   const total=vals.reduce((s,v)=>s+v,0);
   const c=document.getElementById("pieChartTrans"),ctx=c.getContext("2d");
@@ -223,7 +226,7 @@ function drawPieTrans(){
     ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);ctx.fillStyle="rgba(255,77,106,0.08)";ctx.fill();
     ctx.beginPath();ctx.arc(cx,cy,r*0.52,0,2*Math.PI);ctx.fillStyle="#0d0d14";ctx.fill();
     ctx.fillStyle="rgba(240,242,255,0.3)";ctx.font="bold 9px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
-    ctx.fillText("—",cx,cy);
+    ctx.fillText("â",cx,cy);
     document.getElementById("legendTrans").innerHTML="";return;
   }
   let s=-Math.PI/2;
@@ -236,7 +239,7 @@ function drawPieTrans(){
   });
   ctx.beginPath();ctx.arc(cx,cy,r*0.52,0,2*Math.PI);ctx.fillStyle="#0d0d14";ctx.fill();
   ctx.fillStyle="#ff4d6a";ctx.font="bold 10px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
-  const pctTxt=base>0?((total/base)*100).toFixed(2).replace(".",",")+"%":"—";
+  const pctTxt=base>0?((total/base)*100).toFixed(2).replace(".",",")+"%":"â";
   ctx.fillText(pctTxt,cx,cy-6);
   ctx.fillStyle="rgba(240,242,255,0.3)";ctx.font="7px monospace";
   ctx.fillText("a.a.",cx,cy+7);
@@ -248,8 +251,8 @@ function drawPieTrans(){
   });
 }
 function drawResult(){
-  const{base,feeA,gSp,gRF,gRP,gain,liq,liqPct,be,vCol}=calc();
-  const rows=[["Base Total",fmtR(base),"#f0f2ff"],["Fee Bruto/ano",fmtR(feeA)+"/ano","#4d9fff"],["Spread RF","+"+fmtR(gSp),"#3dffa0"],["Rebate Fundos","+"+fmtR(gRF),"#3dffa0"],["Rebate Prev.","+"+fmtR(gRP),"#3dffa0"],["Total Compensado","+"+fmtR(gain),"#3dffa0"]];
+  const{base,feeA,gSp,gRF,gRP,gROA,gain,liq,liqPct,be,vCol}=calc();
+  const rows=[["Base Total",fmtR(base),"#f0f2ff"],["Fee Bruto/ano",fmtR(feeA)+"/ano","#4d9fff"],["Spread RF","+"+fmtR(gSp),"#3dffa0"],["Rebate Fundos","+"+fmtR(gRF),"#3dffa0"],["Rebate Prev.","+"+fmtR(gRP),"#3dffa0"],...(gROA>0?[["ROA Vencimentos","+"+fmtR(gROA),"#ff8c00"]]:[]),(["Total Compensado","+"+fmtR(gain),"#3dffa0"])];
   document.getElementById("resultRows").innerHTML=rows.map(([l,v,c])=>`<div class="row"><span class="row-lbl">${l}</span><span class="row-val" style="color:${c}">${v}</span></div>`).join("");
   document.getElementById("resultBig").textContent=fmtP(liqPct);
   document.getElementById("resultBig").style.color=vCol;
@@ -257,23 +260,28 @@ function drawResult(){
   document.getElementById("resultBE").textContent="BE: "+be;
 }
 function drawBars(){
-  const{base,liqPct,fee,gain}=calc();
+  const{base,liqPct,fee,gain,gROA,gSp,gRF,gRP}=calc();
+  const annualGain=gSp+gRF+gRP;
+  const roaD=val("inp-roa")/100;
   const container=document.getElementById("barChart");
   container.innerHTML="";
   const minBH=45,maxBH=140,minInner=20;
   for(let y=1;y<=5;y++){
     const feeT=base>0?base*fee*y:0;
-    const liqT=base>0?Math.max(0,base*liqPct*y):0;
-    const transT=base>0?gain*y:0;
+    // Net cost: annual recurring Ã y, minus one-time ROA savings (capped: y1=rfAno1, y2+=both)
+    const roaCum=y>=2?(rfAno1+rfAno2)*roaD:rfAno1*roaD;
+    const annualLiqPct=base>0?(base*fee-annualGain)/base:0;
+    const liqT=base>0?Math.max(0,base*annualLiqPct*y-roaCum):0;
+    const transT=base>0?annualGain*y+roaCum:0;
     const ratio=feeT>0?liqT/feeT:0;
     const transRatio=feeT>0?transT/feeT:0;
     const bH=minBH+(maxBH-minBH)*((y-1)/4);
     const lH=Math.max(minInner,ratio*bH);
     const tH=Math.max(minInner,Math.min(transRatio*bH,bH));
-    const pct=base>0?(ratio*100).toFixed(1).replace(".",",")+"%":"—";
-    const tPct=base>0?(transRatio*100).toFixed(1).replace(".",",")+"%":"—";
-    const amt=base>0?fmtR(feeT):"—";
-    const tAmt=base>0?fmtR(transT):"—";
+    const pct=base>0?(ratio*100).toFixed(1).replace(".",",")+"%":"â";
+    const tPct=base>0?(transRatio*100).toFixed(1).replace(".",",")+"%":"â";
+    const amt=base>0?fmtR(feeT):"â";
+    const tAmt=base>0?fmtR(transT):"â";
     const col=document.createElement("div");
     col.className="bar-year";
     col.innerHTML=
@@ -324,19 +332,20 @@ async function processPDF(file){
   rfAno1=0;rfAno2=0;
   setStatus("loading","Lendo PDF...",file.name);
   const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=()=>rej(new Error("Falha na leitura"));r.readAsDataURL(file);});
-  setStatus("loading","Extraindo posições com IA...",file.name);
+  setStatus("loading","Extraindo posiÃ§Ãµes com IA...",file.name);
   try{
     const resp=await fetch("/proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
       model:"claude-sonnet-4-6",max_tokens:1024,
-      system:"Você é um extrator de dados financeiros. Sua ÚNICA saída é um objeto JSON. Nada mais.\n\nFormato EXATO (números sem formatação, sem R$, sem pontos):\n{\"nome\":\"string ou null\",\"rf\":number,\"fundos\":number,\"prev\":number,\"coe\":number,\"excluidos\":number,\"rf_ano1\":number,\"rf_ano2\":number}\n\nRegras:\n- rf: soma de CDB, LCI, LCA, LCD, CRI, CRA, Debêntures, NTN-B, Tesouro Direto, LFT, LTN, compromissadas\n- fundos: Fundos de Investimento (exceto previdência)\n- prev: VGBL, PGBL, Previdência\n- coe: COE\n- excluidos: Ações, FIIs, ETFs, BDRs\n- rf_ano1: parte de rf com vencimento nos próximos 12 meses\n- rf_ano2: parte de rf com vencimento entre 12 e 24 meses\n- Se não conseguir identificar um valor, use 0. NUNCA peça mais informações.\n\nSUA RESPOSTA DEVE COMEÇAR COM { E TERMINAR COM }. ZERO TEXTO FORA DO JSON.",
-      messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"JSON:"}]}]
+      system:"VocÃ« Ã© um extrator de dados financeiros. Sua ÃNICA saÃ­da Ã© um objeto JSON. Nada mais.\n\nFormato EXATO (nÃºmeros sem formataÃ§Ã£o, sem R$, sem pontos):\n{\"nome\":\"string ou null\",\"rf\":number,\"fundos\":number,\"prev\":number,\"coe\":number,\"excluidos\":number,\"rf_ano1\":number,\"rf_ano2\":number}\n\nRegras:\n- rf: soma de CDB, LCI, LCA, LCD, CRI, CRA, DebÃªntures, NTN-B, Tesouro Direto, LFT, LTN, compromissadas\n- fundos: Fundos de Investimento (exceto previdÃªncia)\n- prev: VGBL, PGBL, PrevidÃªncia\n- coe: COE\n- excluidos: AÃ§Ãµes, FIIs, ETFs, BDRs\n- rf_ano1: parte de rf com vencimento nos prÃ³ximos 12 meses\n- rf_ano2: parte de rf com vencimento entre 12 e 24 meses\n- Se nÃ£o conseguir identificar um valor, use 0. NUNCA peÃ§a mais informaÃ§Ãµes.\n\nSUA RESPOSTA DEVE COMEÃAR COM { E TERMINAR COM }. ZERO TEXTO FORA DO JSON.",
+      messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"Extraia os dados e retorne o JSON."}]},{role:"assistant",content:[{type:"text",text:"{"}]}]
     })});
     const res=await resp.json();
     if(!resp.ok)throw new Error("["+resp.status+"] "+(res.error?.message||JSON.stringify(res.error||res)));
-    const txt=res.content?.find(b=>b.type==="text")?.text||"";
+    const raw=res.content?.find(b=>b.type==="text")?.text||"";
+    const txt=raw.startsWith("{")?raw:"{"+raw;
     const match=txt.match(/\{[\s\S]*\}/);
-    if(!match)throw new Error("Sem JSON na resposta: "+txt.slice(0,120));
-    let data;try{data=JSON.parse(match[0]);}catch(pe){throw new Error("JSON inválido: "+match[0].slice(0,120));}
+    if(!match)throw new Error("Sem JSON na resposta: "+raw.slice(0,120));
+    let data;try{data=JSON.parse(match[0]);}catch(pe){throw new Error("JSON invÃ¡lido: "+match[0].slice(0,120));}
     if(data.erro){setStatus("error","&#9888; "+data.erro);return;}
     if(data.rf!=null)document.getElementById("inp-rf").value=data.rf||0;
     if(data.fundos!=null)document.getElementById("inp-fd").value=data.fundos||0;
@@ -345,10 +354,10 @@ async function processPDF(file){
     if(data.excluidos!=null)document.getElementById("inp-ex").value=data.excluidos||0;
     rfAno1=(data.rf_ano1!=null)?data.rf_ano1||0:0;
     rfAno2=(data.rf_ano2!=null)?data.rf_ano2||0:0;
-    if(data.nome){const cn=document.getElementById("clientName");cn.textContent="▸ "+data.nome.toUpperCase();cn.style.display="block";}
+    if(data.nome){const cn=document.getElementById("clientName");cn.textContent="\u25b8 "+data.nome.toUpperCase();cn.style.display="block";}
     update();triggerGlow();
     const tot=(data.rf||0)+(data.fundos||0)+(data.prev||0)+(data.coe||0)+(data.excluidos||0);
-    setStatus("success","&#10003; "+(data.nome?data.nome+" · ":"")+"Total "+fmtR(tot),file.name);
+    setStatus("success","&#10003; "+(data.nome?data.nome+" \u00b7 ":"")+"Total "+fmtR(tot),file.name);
   }catch(e){setStatus("error","&#9888; "+e.message);}
 }
 update();
