@@ -157,12 +157,13 @@ HTML = r"""<!DOCTYPE html>
     <div class="card-line"></div>
     <div class="card-title">Custo Acumulado 5 Anos</div>
     <div class="bar-area" id="barChart"></div>
-    <div class="legend-bar"><div class="legend-bar-item"><div class="legend-bar-dot" style="background:rgba(240,242,255,0.08);border:1px solid rgba(240,242,255,0.15)"></div>Fee bruto</div><div class="legend-bar-item"><div class="legend-bar-dot" style="background:#4d9fff"></div>Custo l&#237;quido</div></div>
+    <div class="legend-bar"><div class="legend-bar-item"><div class="legend-bar-dot" style="background:rgba(240,242,255,0.08);border:1px solid rgba(240,242,255,0.15)"></div>Fee bruto</div><div class="legend-bar-item"><div class="legend-bar-dot" style="background:#4d9fff"></div>Custo l&#237;quido</div><div class="legend-bar-item"><div class="legend-bar-dot" style="background:#ff2d50"></div>Custo transacional</div></div>
   </div>
 </div>
 <script>
 const PIE_COLORS=["#4d9fff","#7bbfff","#b8d8ff","#ffffff"],PIE_LABELS=["Renda Fixa","Fundos","Previdência","COEs"];
-const PIE_COLORS_RED=["#ff4d6a","#ff8096","#ffb3bb"],PIE_LABELS_TRANS=["Spread RF","Rebate Fundos","Rebate Prev."];
+const PIE_COLORS_RED=["#ff2d50","#ff5570","#ff8a9a","#ffb3bb","#ffd6db"];
+let rfAno1=0,rfAno2=0;
 function fmtR(v){return"R$ "+Math.abs(Math.round(v)).toLocaleString("pt-BR")}
 function fmtP(v){return(v*100).toFixed(3).replace(".",",")+"%"}
 function val(id){return parseFloat(document.getElementById(id).value)||0}
@@ -199,8 +200,22 @@ function drawPie(){
   });
 }
 function drawPieTrans(){
-  const{gSp,gRF,gRP,base}=calc();
-  const vals=[gSp,gRF,gRP],total=gSp+gRF+gRP;
+  const{gSp,gRF,gRP,base,rf}=calc();
+  const spD=val("inp-sp")/100;
+  const hasMatur=rfAno1>0||rfAno2>0;
+  let vals,lbls,cols;
+  if(hasMatur){
+    const rfRest=Math.max(0,rf-rfAno1-rfAno2);
+    const gSp1=rfAno1*spD,gSp2=rfAno2*spD,gSpR=rfRest*spD;
+    vals=[gSp1,gSp2,gSpR,gRF,gRP];
+    lbls=["Venc. Ano 1","Venc. Ano 2","RF Longo","Rebate Fundos","Rebate Prev."];
+    cols=["#ff2d50","#ff5570","#ff8a9a","#ffc5cc","#ffd6db"];
+  }else{
+    vals=[gSp,gRF,gRP];
+    lbls=["Spread RF","Rebate Fundos","Rebate Prev."];
+    cols=["#ff4d6a","#ff8096","#ffb3bb"];
+  }
+  const total=vals.reduce((s,v)=>s+v,0);
   const c=document.getElementById("pieChartTrans"),ctx=c.getContext("2d");
   const W=c.width,H=c.height,cx=W/2,cy=H/2,r=W/2-5;
   ctx.clearRect(0,0,W,H);
@@ -215,7 +230,7 @@ function drawPieTrans(){
   vals.forEach((v,i)=>{
     if(v<=0)return;const sl=(v/total)*2*Math.PI;
     ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,s,s+sl);ctx.closePath();
-    ctx.fillStyle=PIE_COLORS_RED[i];ctx.fill();
+    ctx.fillStyle=cols[i];ctx.fill();
     if(i===0){ctx.shadowColor="#ff4d6a";ctx.shadowBlur=10;ctx.fill();ctx.shadowBlur=0;}
     s+=sl;
   });
@@ -228,7 +243,7 @@ function drawPieTrans(){
   const leg=document.getElementById("legendTrans");leg.innerHTML="";
   vals.forEach((v,i)=>{
     if(v<=0)return;const div=document.createElement("div");div.className="legend-item";
-    div.innerHTML=`<div class="legend-dot" style="background:${PIE_COLORS_RED[i]};${i===0?"box-shadow:0 0 5px rgba(255,77,106,0.5)":""}"></div><span class="legend-lbl">${PIE_LABELS_TRANS[i]}</span><span class="legend-val" style="color:${PIE_COLORS_RED[i]}">${fmtR(v)}</span><span class="legend-pct">${base>0?((v/base)*100).toFixed(1).replace(".",",")+"%":""}</span>`;
+    div.innerHTML=`<div class="legend-dot" style="background:${cols[i]};${i===0?"box-shadow:0 0 5px rgba(255,77,106,0.5)":""}"></div><span class="legend-lbl">${lbls[i]}</span><span class="legend-val" style="color:${cols[i]}">${fmtR(v)}</span><span class="legend-pct">${base>0?((v/base)*100).toFixed(1).replace(".",",")+"%":""}</span>`;
     leg.appendChild(div);
   });
 }
@@ -242,27 +257,40 @@ function drawResult(){
   document.getElementById("resultBE").textContent="BE: "+be;
 }
 function drawBars(){
-  const{base,liqPct,fee}=calc();
+  const{base,liqPct,fee,gain}=calc();
   const container=document.getElementById("barChart");
   container.innerHTML="";
-  // Bars always rendered — grow from minBH (Ano 1) to maxBH (Ano 5)
-  const minBH=45,maxBH=140,minInner=28;
+  const minBH=45,maxBH=140,minInner=20;
   for(let y=1;y<=5;y++){
     const feeT=base>0?base*fee*y:0;
     const liqT=base>0?Math.max(0,base*liqPct*y):0;
+    const transT=base>0?gain*y:0;
     const ratio=feeT>0?liqT/feeT:0;
-    // Outer bar grows linearly from minBH to maxBH
+    const transRatio=feeT>0?transT/feeT:0;
     const bH=minBH+(maxBH-minBH)*((y-1)/4);
-    // Inner bar: at least minInner px so % text always fits inside
     const lH=Math.max(minInner,ratio*bH);
+    const tH=Math.max(minInner,Math.min(transRatio*bH,bH));
     const pct=base>0?(ratio*100).toFixed(1).replace(".",",")+"%":"—";
+    const tPct=base>0?(transRatio*100).toFixed(1).replace(".",",")+"%":"—";
     const amt=base>0?fmtR(feeT):"—";
+    const tAmt=base>0?fmtR(transT):"—";
     const col=document.createElement("div");
     col.className="bar-year";
-    col.innerHTML=`<div class="bar-amt">${amt}</div>`+
-      `<div class="bar-outer" style="height:${bH}px">`+
-        `<div class="bar-inner" style="height:${lH}px">`+
-          `<span class="bar-pct">${pct}</span>`+
+    col.innerHTML=
+      `<div style="display:flex;gap:3px;align-items:flex-end;width:100%">`+
+        `<div style="flex:1;display:flex;flex-direction:column;align-items:center">`+
+          `<div class="bar-amt">${amt}</div>`+
+          `<div class="bar-outer" style="width:100%;height:${bH}px">`+
+            `<div class="bar-inner" style="height:${lH}px"><span class="bar-pct">${pct}</span></div>`+
+          `</div>`+
+        `</div>`+
+        `<div style="flex:1;display:flex;flex-direction:column;align-items:center">`+
+          `<div class="bar-amt" style="color:rgba(255,77,106,0.7)">${tAmt}</div>`+
+          `<div class="bar-outer" style="width:100%;height:${bH}px;border-color:rgba(255,77,106,0.25);background:rgba(255,77,106,0.04)">`+
+            `<div style="width:100%;height:${tH}px;background:linear-gradient(180deg,#ff7a8a,#ff2d50);box-shadow:0 0 8px rgba(255,77,106,0.35);display:flex;align-items:center;justify-content:center">`+
+              `<span class="bar-pct">${tPct}</span>`+
+            `</div>`+
+          `</div>`+
         `</div>`+
       `</div>`+
       `<div class="bar-lbl">Ano ${y}</div>`;
@@ -293,13 +321,14 @@ function triggerGlow(){
 async function processPDF(file){
   if(!file)return;
   if(file.type!=="application/pdf"){setStatus("error","&#9888; Envie um arquivo PDF.");return;}
+  rfAno1=0;rfAno2=0;
   setStatus("loading","Lendo PDF...",file.name);
   const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=()=>rej(new Error("Falha na leitura"));r.readAsDataURL(file);});
   setStatus("loading","Extraindo posições com IA...",file.name);
   try{
     const resp=await fetch("/proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
       model:"claude-sonnet-4-6",max_tokens:1024,
-      system:"Você é um extrator de dados financeiros. Sua ÚNICA saída permitida é um objeto JSON válido, sem nenhum texto antes ou depois.\n\nFormato obrigatório (números sem formatação):\n{\"nome\":\"string ou null\",\"rf\":number,\"fundos\":number,\"prev\":number,\"coe\":number,\"excluidos\":number}\n\nClassificação:\n- rf: CDB, LCI, LCA, LCD, CRI, CRA, Debêntures, NTN-B, Tesouro Direto, LFT, LTN, poupança, compromissadas\n- fundos: Fundos de Investimento (exceto previdência)\n- prev: VGBL, PGBL, Previdência\n- coe: COE\n- excluidos: Ações, FIIs, ETFs, BDRs\n- use 0 quando a classe não existe\n\nPROIBIDO: texto explicativo, markdown, comentários. APENAS JSON.",
+      system:"Você é um extrator de dados financeiros. Sua ÚNICA saída permitida é um objeto JSON válido, sem nenhum texto antes ou depois.\n\nFormato obrigatório (números sem formatação):\n{\"nome\":\"string ou null\",\"rf\":number,\"fundos\":number,\"prev\":number,\"coe\":number,\"excluidos\":number,\"rf_ano1\":number,\"rf_ano2\":number}\n\nClassificação:\n- rf: CDB, LCI, LCA, LCD, CRI, CRA, Debêntures, NTN-B, Tesouro Direto, LFT, LTN, poupança, compromissadas (TOTAL de todos os vencimentos)\n- fundos: Fundos de Investimento (exceto previdência)\n- prev: VGBL, PGBL, Previdência\n- coe: COE\n- excluidos: Ações, FIIs, ETFs, BDRs\n- rf_ano1: subconjunto de rf com vencimento nos próximos 12 meses a partir de hoje\n- rf_ano2: subconjunto de rf com vencimento entre 12 e 24 meses a partir de hoje\n- use 0 quando a classe não existe ou vencimento não identificável\n\nPROIBIDO: texto explicativo, markdown, comentários. APENAS JSON.",
       messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"Retorne APENAS o objeto JSON com os totais por classe de ativo."}]}]
     })});
     const res=await resp.json();
@@ -314,6 +343,8 @@ async function processPDF(file){
     if(data.prev!=null)document.getElementById("inp-pv").value=data.prev||0;
     if(data.coe!=null)document.getElementById("inp-co").value=data.coe||0;
     if(data.excluidos!=null)document.getElementById("inp-ex").value=data.excluidos||0;
+    rfAno1=(data.rf_ano1!=null)?data.rf_ano1||0:0;
+    rfAno2=(data.rf_ano2!=null)?data.rf_ano2||0:0;
     if(data.nome){const cn=document.getElementById("clientName");cn.textContent="▸ "+data.nome.toUpperCase();cn.style.display="block";}
     update();triggerGlow();
     const tot=(data.rf||0)+(data.fundos||0)+(data.prev||0)+(data.coe||0)+(data.excluidos||0);
