@@ -245,12 +245,15 @@ function drawBars(){
   const{base,liqPct,fee}=calc();
   const container=document.getElementById("barChart");
   container.innerHTML="";
+  // Bars always rendered — grow from minBH (Ano 1) to maxBH (Ano 5)
   const minBH=45,maxBH=140,minInner=28;
   for(let y=1;y<=5;y++){
     const feeT=base>0?base*fee*y:0;
     const liqT=base>0?Math.max(0,base*liqPct*y):0;
     const ratio=feeT>0?liqT/feeT:0;
+    // Outer bar grows linearly from minBH to maxBH
     const bH=minBH+(maxBH-minBH)*((y-1)/4);
+    // Inner bar: at least minInner px so % text always fits inside
     const lH=Math.max(minInner,ratio*bH);
     const pct=base>0?(ratio*100).toFixed(1).replace(".",",")+"%":"—";
     const amt=base>0?fmtR(feeT):"—";
@@ -292,19 +295,19 @@ async function processPDF(file){
   if(file.type!=="application/pdf"){setStatus("error","&#9888; Envie um arquivo PDF.");return;}
   setStatus("loading","Lendo PDF...",file.name);
   const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=()=>rej(new Error("Falha na leitura"));r.readAsDataURL(file);});
-  setStatus("loading","Extraindo posicoes com IA...",file.name);
+  setStatus("loading","Extraindo posições com IA...",file.name);
   try{
     const resp=await fetch("/proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
       model:"claude-sonnet-4-6",max_tokens:1024,
-      system:"Voce e um extrator de dados financeiros. Sua unica saida e um JSON valido, sem texto adicional.",
-      messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"Analise este extrato de investimentos e extraia os totais por classe de ativo.\n\nRetorne SOMENTE este JSON (substitua os zeros pelos valores encontrados, sem formatacao de moeda):\n{\"nome\":\"nome do cliente ou null\",\"rf\":0,\"fundos\":0,\"prev\":0,\"coe\":0,\"excluidos\":0}\n\nRegras:\n- rf: Renda Fixa — CDB, LCI, LCA, LCD, CRI, CRA, Debentures, NTN-B, Tesouro Direto, LFT, LTN, poupanca, compromissadas\n- fundos: Fundos de Investimento (exceto previdencia)\n- prev: Previdencia Privada — VGBL, PGBL\n- coe: COE\n- excluidos: Renda Variavel — Acoes, FIIs, ETFs, BDRs\n\nUse 0 para classes ausentes. Responda APENAS com o JSON."}]}]
+      system:"Você é um extrator de dados financeiros. Sua ÚNICA saída permitida é um objeto JSON válido, sem nenhum texto antes ou depois.\n\nFormato obrigatório (números sem formatação):\n{\"nome\":\"string ou null\",\"rf\":number,\"fundos\":number,\"prev\":number,\"coe\":number,\"excluidos\":number}\n\nClassificação:\n- rf: CDB, LCI, LCA, LCD, CRI, CRA, Debêntures, NTN-B, Tesouro Direto, LFT, LTN, poupança, compromissadas\n- fundos: Fundos de Investimento (exceto previdência)\n- prev: VGBL, PGBL, Previdência\n- coe: COE\n- excluidos: Ações, FIIs, ETFs, BDRs\n- use 0 quando a classe não existe\n\nPROIBIDO: texto explicativo, markdown, comentários. APENAS JSON.",
+      messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"Retorne APENAS o objeto JSON com os totais por classe de ativo."}]}]
     })});
     const res=await resp.json();
     if(!resp.ok)throw new Error("["+resp.status+"] "+(res.error?.message||JSON.stringify(res.error||res)));
     const txt=res.content?.find(b=>b.type==="text")?.text||"";
     const match=txt.match(/\{[\s\S]*\}/);
     if(!match)throw new Error("Sem JSON na resposta: "+txt.slice(0,120));
-    let data;try{data=JSON.parse(match[0]);}catch(pe){throw new Error("JSON invalido: "+match[0].slice(0,120));}
+    let data;try{data=JSON.parse(match[0]);}catch(pe){throw new Error("JSON inválido: "+match[0].slice(0,120));}
     if(data.erro){setStatus("error","&#9888; "+data.erro);return;}
     if(data.rf!=null)document.getElementById("inp-rf").value=data.rf||0;
     if(data.fundos!=null)document.getElementById("inp-fd").value=data.fundos||0;
