@@ -337,14 +337,12 @@ async function processPDF(file){
     const resp=await fetch("/proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
       model:"claude-sonnet-4-6",max_tokens:1024,
       system:"VocÃª Ã© um parser de extratos financeiros. Retorne SOMENTE o objeto JSON abaixo preenchido. Nenhuma anÃ¡lise, nenhum markdown, nenhuma explicaÃ§Ã£o.\n\nFormato (nÃºmeros sem R$, sem pontos de milhar, sem vÃ­rgula decimal â use ponto como separador decimal):\n{\"nome\":\"string ou null\",\"rf\":number,\"fundos\":number,\"prev\":number,\"coe\":number,\"excluidos\":number,\"rf_ano1\":number,\"rf_ano2\":number}\n\nRegras:\n- rf: CDB, LCI, LCA, LCD, CRI, CRA, DebÃªntures, NTN-B, Tesouro Direto, LFT, LTN, compromissadas\n- fundos: Fundos de Investimento (exceto previdÃªncia)\n- prev: VGBL, PGBL, PrevidÃªncia\n- coe: COE\n- excluidos: AÃ§Ãµes, FIIs, ETFs, BDRs\n- rf_ano1: valor de rf com vencimento nos prÃ³ximos 12 meses\n- rf_ano2: valor de rf com vencimento entre 12 e 24 meses\n- Valores nÃ£o identificados = 0. Nunca peÃ§a mais informaÃ§Ãµes.\n\nSUA RESPOSTA DEVE SER APENAS O JSON. COMECE COM { E TERMINE COM }. ZERO TEXTO FORA DO JSON.",
-      messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"Retorne o JSON preenchido. Apenas o JSON, comeÃ§ando com { e terminando com }."}]}]
+      messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"Retorne o JSON preenchido. Apenas o JSON."}]},{role:"assistant",content:"{"}]
     })});
     const res=await resp.json();
     if(!resp.ok)throw new Error("["+resp.status+"] "+(res.error?.message||JSON.stringify(res.error||res)));
-    const raw=res.content?.find(b=>b.type==="text")?.text||"";
-    const jsonStart=raw.indexOf("{");
-    if(jsonStart===-1)throw new Error("Sem JSON na resposta: "+raw.slice(0,120));
-    const match=raw.slice(jsonStart).match(/\{[\s\S]*\}/);
+    const raw="{"+(res.content?.find(b=>b.type==="text")?.text||"");
+    const match=raw.match(/\{[\s\S]*\}/);
     if(!match)throw new Error("Sem JSON na resposta: "+raw.slice(0,120));
     let data;try{data=JSON.parse(match[0]);}catch(pe){throw new Error("JSON invÃ¡lido: "+match[0].slice(0,120));}
     if(data.erro){setStatus("error","&#9888; "+data.erro);return;}
