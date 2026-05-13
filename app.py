@@ -164,7 +164,7 @@ HTML = r"""<!DOCTYPE html>
 const PIE_COLORS=["#4d9fff","#7bbfff","#b8d8ff","#ffffff"],PIE_LABELS=["Renda Fixa","Fundos","Previdência","COEs"];
 const PIE_COLORS_RED=["#ff2d50","#ff5570","#ff8a9a","#ffb3bb","#ffd6db"];
 let rfAno1=0,rfAno2=0;
-function fmtR(v){return"R$ "+Math.abs(Math.round(v)).toLocaleString("pt-BR")}
+function fmtR(v){return"R$ "+Math.abs(Math.round(v)).toLocaleString("pt-BR")}
 function fmtP(v){return(v*100).toFixed(3).replace(".",",")+"%"}
 function val(id){return parseFloat(document.getElementById(id).value)||0}
 function calc(){
@@ -173,7 +173,7 @@ function calc(){
   const base=rf+fd+pv+co,fD=fee/100,spD=sp/100,rbFD=rbF/100,rbPD=rbP/100;
   const feeA=base*fD,gSp=rf*spD,gRF=fd*rbFD,gRP=pv*rbPD,gain=gSp+gRF+gRP,liq=feeA-gain;
   const liqPct=base>0?liq/base:0;
-  const be=liq<=0?"Imediato":gain>0?(liq/gain).toFixed(1).replace(".",",")+" anos":"—";
+  const be=liq<=0?"Imediato":gain>0?(liq/gain).toFixed(1).replace(".",",")+" anos":"—";
   const vCol=liqPct<=0?"#3dffa0":liqPct<0.004?"#4d9fff":"#ff4d6a";
   return{rf,fd,pv,co,base,feeA,gSp,gRF,gRP,gain,liq,liqPct,be,vCol,fee:fD};
 }
@@ -328,8 +328,8 @@ async function processPDF(file){
   try{
     const resp=await fetch("/proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
       model:"claude-sonnet-4-6",max_tokens:1024,
-      system:"Você é um extrator de dados financeiros. Sua ÚNICA saída permitida é um objeto JSON válido, sem nenhum texto antes ou depois.\n\nFormato obrigatório (números sem formatação):\n{\"nome\":\"string ou null\",\"rf\":number,\"fundos\":number,\"prev\":number,\"coe\":number,\"excluidos\":number,\"rf_ano1\":number,\"rf_ano2\":number}\n\nClassificação:\n- rf: CDB, LCI, LCA, LCD, CRI, CRA, Debêntures, NTN-B, Tesouro Direto, LFT, LTN, poupança, compromissadas (TOTAL de todos os vencimentos)\n- fundos: Fundos de Investimento (exceto previdência)\n- prev: VGBL, PGBL, Previdência\n- coe: COE\n- excluidos: Ações, FIIs, ETFs, BDRs\n- rf_ano1: subconjunto de rf com vencimento nos próximos 12 meses a partir de hoje\n- rf_ano2: subconjunto de rf com vencimento entre 12 e 24 meses a partir de hoje\n- use 0 quando a classe não existe ou vencimento não identificável\n\nPROIBIDO: texto explicativo, markdown, comentários. APENAS JSON.",
-      messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"Retorne APENAS o objeto JSON com os totais por classe de ativo."}]}]
+      system:"Você é um extrator de dados financeiros. Sua ÚNICA saída é um objeto JSON. Nada mais.\n\nFormato EXATO (números sem formatação, sem R$, sem pontos):\n{\"nome\":\"string ou null\",\"rf\":number,\"fundos\":number,\"prev\":number,\"coe\":number,\"excluidos\":number,\"rf_ano1\":number,\"rf_ano2\":number}\n\nRegras:\n- rf: soma de CDB, LCI, LCA, LCD, CRI, CRA, Debêntures, NTN-B, Tesouro Direto, LFT, LTN, compromissadas\n- fundos: Fundos de Investimento (exceto previdência)\n- prev: VGBL, PGBL, Previdência\n- coe: COE\n- excluidos: Ações, FIIs, ETFs, BDRs\n- rf_ano1: parte de rf com vencimento nos próximos 12 meses\n- rf_ano2: parte de rf com vencimento entre 12 e 24 meses\n- Se não conseguir identificar um valor, use 0. NUNCA peça mais informações.\n\nSUA RESPOSTA DEVE COMEÇAR COM { E TERMINAR COM }. ZERO TEXTO FORA DO JSON.",
+      messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"JSON:"}]}]
     })});
     const res=await resp.json();
     if(!resp.ok)throw new Error("["+resp.status+"] "+(res.error?.message||JSON.stringify(res.error||res)));
