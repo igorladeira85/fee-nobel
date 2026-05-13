@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simulador Fee-Based Â· Nobel Capital
+Simulador Fee-Based · Nobel Capital
 Deploy em qualquer plataforma Python (Render, Railway, Fly.io)
 """
 import os, json, urllib.request, urllib.error
@@ -226,7 +226,7 @@ function drawPieTrans(){
     ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);ctx.fillStyle="rgba(255,77,106,0.08)";ctx.fill();
     ctx.beginPath();ctx.arc(cx,cy,r*0.52,0,2*Math.PI);ctx.fillStyle="#0d0d14";ctx.fill();
     ctx.fillStyle="rgba(240,242,255,0.3)";ctx.font="bold 9px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
-    ctx.fillText("â",cx,cy);
+    ctx.fillText("—",cx,cy);
     document.getElementById("legendTrans").innerHTML="";return;
   }
   let s=-Math.PI/2;
@@ -239,7 +239,7 @@ function drawPieTrans(){
   });
   ctx.beginPath();ctx.arc(cx,cy,r*0.52,0,2*Math.PI);ctx.fillStyle="#0d0d14";ctx.fill();
   ctx.fillStyle="#ff4d6a";ctx.font="bold 10px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
-  const pctTxt=base>0?((total/base)*100).toFixed(2).replace(".",",")+"%":"â";
+  const pctTxt=base>0?((total/base)*100).toFixed(2).replace(".",",")+"%":"—";
   ctx.fillText(pctTxt,cx,cy-6);
   ctx.fillStyle="rgba(240,242,255,0.3)";ctx.font="7px monospace";
   ctx.fillText("a.a.",cx,cy+7);
@@ -268,7 +268,7 @@ function drawBars(){
   const minBH=45,maxBH=140,minInner=20;
   for(let y=1;y<=5;y++){
     const feeT=base>0?base*fee*y:0;
-    // Net cost: annual recurring Ã y, minus one-time ROA savings (capped: y1=rfAno1, y2+=both)
+    // Net cost: annual recurring × y, minus one-time ROA savings (capped: y1=rfAno1, y2+=both)
     const roaCum=y>=2?(rfAno1+rfAno2)*roaD:rfAno1*roaD;
     const annualLiqPct=base>0?(base*fee-annualGain)/base:0;
     const liqT=base>0?Math.max(0,base*annualLiqPct*y-roaCum):0;
@@ -278,10 +278,10 @@ function drawBars(){
     const bH=minBH+(maxBH-minBH)*((y-1)/4);
     const lH=Math.max(minInner,ratio*bH);
     const tH=Math.max(minInner,Math.min(transRatio*bH,bH));
-    const pct=base>0?(ratio*100).toFixed(1).replace(".",",")+"%":"â";
-    const tPct=base>0?(transRatio*100).toFixed(1).replace(".",",")+"%":"â";
-    const amt=base>0?fmtR(feeT):"â";
-    const tAmt=base>0?fmtR(transT):"â";
+    const pct=base>0?(ratio*100).toFixed(1).replace(".",",")+"%":"—";
+    const tPct=base>0?(transRatio*100).toFixed(1).replace(".",",")+"%":"—";
+    const amt=base>0?fmtR(feeT):"—";
+    const tAmt=base>0?fmtR(transT):"—";
     const col=document.createElement("div");
     col.className="bar-year";
     col.innerHTML=
@@ -332,19 +332,19 @@ async function processPDF(file){
   rfAno1=0;rfAno2=0;
   setStatus("loading","Lendo PDF...",file.name);
   const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=()=>rej(new Error("Falha na leitura"));r.readAsDataURL(file);});
-  setStatus("loading","Extraindo posiÃ§Ãµes com IA...",file.name);
+  setStatus("loading","Extraindo posições com IA...",file.name);
   try{
     const resp=await fetch("/proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
       model:"claude-sonnet-4-6",max_tokens:1024,
-      system:"VocÃª Ã© um parser de extratos financeiros. Retorne SOMENTE o objeto JSON abaixo preenchido. Nenhuma anÃ¡lise, nenhum markdown, nenhuma explicaÃ§Ã£o.\n\nFormato (nÃºmeros sem R$, sem pontos de milhar, sem vÃ­rgula decimal â use ponto como separador decimal):\n{\"nome\":\"string ou null\",\"rf\":number,\"fundos\":number,\"prev\":number,\"coe\":number,\"excluidos\":number,\"rf_ano1\":number,\"rf_ano2\":number}\n\nRegras:\n- rf: CDB, LCI, LCA, LCD, CRI, CRA, DebÃªntures, NTN-B, Tesouro Direto, LFT, LTN, compromissadas\n- fundos: Fundos de Investimento (exceto previdÃªncia)\n- prev: VGBL, PGBL, PrevidÃªncia\n- coe: COE\n- excluidos: AÃ§Ãµes, FIIs, ETFs, BDRs\n- rf_ano1: valor de rf com vencimento nos prÃ³ximos 12 meses\n- rf_ano2: valor de rf com vencimento entre 12 e 24 meses\n- Valores nÃ£o identificados = 0. Nunca peÃ§a mais informaÃ§Ãµes.\n\nSUA RESPOSTA DEVE SER APENAS O JSON. COMECE COM { E TERMINE COM }. ZERO TEXTO FORA DO JSON.",
-      messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"Retorne o JSON preenchido. Apenas o JSON."}]},{role:"assistant",content:"{"}]
+      tools:[{name:"parse_portfolio",description:"Extrai os dados financeiros do extrato do cliente",input_schema:{type:"object",properties:{nome:{type:["string","null"],description:"Nome do cliente"},rf:{type:"number",description:"Renda Fixa: CDB, LCI, LCA, LCD, CRI, CRA, Debêntures, NTN-B, Tesouro Direto, LFT, LTN, compromissadas"},fundos:{type:"number",description:"Fundos de Investimento (exceto previdência)"},prev:{type:"number",description:"Previdência: VGBL, PGBL"},coe:{type:"number",description:"COE"},excluidos:{type:"number",description:"Excluídos da base: Ações, FIIs, ETFs, BDRs"},rf_ano1:{type:"number",description:"Valor de RF com vencimento nos próximos 12 meses"},rf_ano2:{type:"number",description:"Valor de RF com vencimento entre 12 e 24 meses"}},required:["nome","rf","fundos","prev","coe","excluidos","rf_ano1","rf_ano2"]}}],
+      tool_choice:{type:"auto"},
+      messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"Extraia os dados financeiros do extrato usando a ferramenta parse_portfolio. Use ponto como separador decimal. Valores não identificados = 0."}]}]
     })});
     const res=await resp.json();
     if(!resp.ok)throw new Error("["+resp.status+"] "+(res.error?.message||JSON.stringify(res.error||res)));
-    const raw="{"+(res.content?.find(b=>b.type==="text")?.text||"");
-    const match=raw.match(/\{[\s\S]*\}/);
-    if(!match)throw new Error("Sem JSON na resposta: "+raw.slice(0,120));
-    let data;try{data=JSON.parse(match[0]);}catch(pe){throw new Error("JSON invÃ¡lido: "+match[0].slice(0,120));}
+    const toolBlock=res.content?.find(b=>b.type==="tool_use"&&b.name==="parse_portfolio");
+    if(!toolBlock)throw new Error("Sem dados na resposta: "+JSON.stringify(res.content?.map(b=>b.type)));
+    let data=toolBlock.input;
     if(data.erro){setStatus("error","&#9888; "+data.erro);return;}
     if(data.rf!=null)document.getElementById("inp-rf").value=data.rf||0;
     if(data.fundos!=null)document.getElementById("inp-fd").value=data.fundos||0;
