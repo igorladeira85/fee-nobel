@@ -111,8 +111,8 @@ input[type=number]{-moz-appearance:textfield}
 <div class="drop-main"><span>Arraste o extrato</span> ou clique para selecionar</div>
 <div class="drop-sub">PDF &#183; XP Performance, extrato de posi&#231;&#227;o, carteira consolidada</div>
 </div>
-<input id="fileInput" type="file" accept="application/pdf" style="display:none">
 </div>
+<input id="fileInput" type="file" accept="application/pdf" style="display:none">
 <div id="statusBox" style="display:none" class="status"></div>
 </div>
 <div class="grid-main">
