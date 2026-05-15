@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simulador Fee-Based Â· Nobel Capital
+Simulador Fee-Based · Nobel Capital
 Deploy em qualquer plataforma Python (Render, Railway, Fly.io)
 """
 import os, json, urllib.request, urllib.error
@@ -168,10 +168,10 @@ input[type=number]{-moz-appearance:textfield}
 </div>
 </div>
 <script>
-const PIE_COLORS=["#4d9fff","#7bbfff","#b8d8ff","#ffffff"],PIE_LABELS=["Renda Fixa","Fundos","PrevidÃªncia","COEs"];
+const PIE_COLORS=["#4d9fff","#7bbfff","#b8d8ff","#ffffff"],PIE_LABELS=["Renda Fixa","Fundos","Previdência","COEs"];
 const PIE_COLORS_RED=["#ff2d50","#ff5570","#ff8a9a","#ffb3bb","#ffd6db"];
 let rfAno1=0,rfAno2=0;
-function fmtR(v){return"R$Â "+Math.abs(Math.round(v)).toLocaleString("pt-BR")}
+function fmtR(v){return"R$ "+Math.abs(Math.round(v)).toLocaleString("pt-BR")}
 function fmtP(v){return(v*100).toFixed(3).replace(".",",")+"%"}
 function val(id){return parseFloat(document.getElementById(id).value)||0}
 function calc(){
@@ -183,7 +183,7 @@ const rbFD=taF/100*rpF/100,rbPD=taP/100*rpP/100;
 const feeA=base*fD,gSp=rf*spD,gRF=fd*rbFD,gRP=pv*rbPD,gROA=(rfAno1+rfAno2)*roaD;
 const gain=gSp+gRF+gRP+gROA,liq=feeA-gain;
 const liqPct=base>0?liq/base:0;
-const be=liq<=0?"Imediato":gain>0?(liq/gain).toFixed(1).replace(".",",")+"Â anos":"â";
+const be=liq<=0?"Imediato":gain>0?(liq/gain).toFixed(1).replace(".",",")+" anos":"—";
 const vCol=liqPct<=0?"#3dffa0":liqPct<0.004?"#4d9fff":"#ff4d6a";
 return{rf,fd,pv,co,base,feeA,gSp,gRF,gRP,gROA,gain,liq,liqPct,be,vCol,fee:fD,rbFD,rbPD};
 }
@@ -240,7 +240,7 @@ if(total<=0||base<=0){
 ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);ctx.fillStyle="rgba(255,77,106,0.08)";ctx.fill();
 ctx.beginPath();ctx.arc(cx,cy,r*0.52,0,2*Math.PI);ctx.fillStyle="#0d0d14";ctx.fill();
 ctx.fillStyle="rgba(240,242,255,0.3)";ctx.font="bold 9px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
-ctx.fillText("â",cx,cy);
+ctx.fillText("—",cx,cy);
 document.getElementById("legendTrans").innerHTML="";return;
 }
 let s=-Math.PI/2;
@@ -253,7 +253,7 @@ s+=sl;
 });
 ctx.beginPath();ctx.arc(cx,cy,r*0.52,0,2*Math.PI);ctx.fillStyle="#0d0d14";ctx.fill();
 ctx.fillStyle="#ff4d6a";ctx.font="bold 10px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
-const pctTxt=base>0?((total/base)*100).toFixed(2).replace(".",",")+"%":"â";
+const pctTxt=base>0?((total/base)*100).toFixed(2).replace(".",",")+"%":"—";
 ctx.fillText(pctTxt,cx,cy-6);
 ctx.fillStyle="rgba(240,242,255,0.3)";ctx.font="7px monospace";
 ctx.fillText("a.a.",cx,cy+7);
@@ -279,7 +279,7 @@ const annualGain=gSp+gRF+gRP;
 const roaD=val("inp-roa")/100;
 const container=document.getElementById("barChart");
 container.innerHTML="";
-const minBH=45,maxBH=140,minInner=20;
+const minBH*45,maxBH=140,minInner=20;
 for(let y=1;y<=5;y++){
 const feeT=base>0?base*fee*y:0;
 const roaCum=y>=2?(rfAno1+rfAno2)*roaD:rfAno1*roaD;
@@ -291,10 +291,10 @@ const transRatio=feeT>0?transT/feeT:0;
 const bH=minBH+(maxBH-minBH)*((y-1)/4);
 const lH=Math.max(minInner,ratio*bH);
 const tH=Math.max(minInner,Math.min(transRatio*bH,bH));
-const pct=base>0?(ratio*100).toFixed(1).replace(".",",")+"%":"â";
-const tPct=base>0?(transRatio*100).toFixed(1).replace(".",",")+"%":"â";
-const amt=base>0?fmtR(feeT):"â";
-const tAmt=base>0?fmtR(transT):"â";
+const pct=base>0?(ratio*100).toFixed(1).replace(".",",")+"%":"—";
+const tPct=base>0?(transRatio*100).toFixed(1).replace(".",",")+"%":"—";
+const amt=base>0?fmtR(feeT):"—";
+const tAmt=base>0?fmtR(transT):"—";
 const col=document.createElement("div");
 col.className="bar-year";
 col.innerHTML=
@@ -322,7 +322,7 @@ function update(){updateRebateDisplays();drawPie();drawPieTrans();drawResult();d
 document.querySelectorAll("input[type=number]").forEach(el=>el.addEventListener("input",update));
 const dropZone=document.getElementById("dropZone"),fileInput=document.getElementById("fileInput");
 dropZone.addEventListener("click",()=>fileInput.click());
-dropZone.addEventListener("tragover",e=>{e.preventDefault();dropZone.classList.add("dragover");});
+dropZone.addEventListener("dragover",e=>{e.preventDefault();dropZone.classList.add("dragover");});
 dropZone.addEventListener("dragleave",()=>dropZone.classList.remove("dragover"));
 dropZone.addEventListener("drop",e=>{e.preventDefault();dropZone.classList.remove("dragover");processPDF(e.dataTransfer.files[0]);});
 fileInput.addEventListener("change",e=>processPDF(e.target.files[0]));
@@ -345,13 +345,13 @@ if(file.type!=="application/pdf"){setStatus("error","&#9888; Envie um arquivo PD
 rfAno1=0;rfAno2=0;
 setStatus("loading","Lendo PDF...",file.name);
 const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=()=>rej(new Error("Falha na leitura"));r.readAsDataURL(file);});
-setStatus("loading","Extraindo posiÃ§Ãµes com IA...",file.name);
+setStatus("loading","Extraindo posições com IA...",file.name);
 try{
 const resp=await fetch("/proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
 model:"claude-sonnet-4-6",max_tokens:4096,
-tools:[{name:"parse_portfolio",description:"Extrai dados financeiros do extrato",input_schema:{type:"object",properties:{nome:{type:["string","null"],description:"Nome do cliente"},rf:{type:"number",description:"Renda Fixa (CDB, LCI, LCA, LCD, CRI, CRA, Debentures, Tesouro Direto, LFT, LTN, NTN-B, compromissadas)"},fundos:{type:"number",description:"Fundos de Investimento (FIC, FIM, FIRF, Fundo Mutuo â qualquer produto com palavra Fundo no nome, exceto VGBL/PGBL)"},prev:{type:"number",description:"Previdencia VGBL e PGBL"},coe:{type:"number",description:"COE"},excluidos:{type:"number",description:"Acoes individuais, FIIs, ETFs, BDRs"},rf_ano1:{type:"number",description:"RF vencendo em ate 12 meses"},rf_ano2:{type:"number",description:"RF vencendo entre 12 e 24 meses"}},required:["nome","rf","fundos","prev","coe","excluidos","rf_ano1","rf_ano2"]}}],
+tools:[{name:"parse_portfolio",description:"Extrai dados financeiros do extrato",input_schema:{type:"object",properties:{nome:{type:["string","null"],description:"Nome do cliente"},rf:{type:"number",description:"Renda Fixa (CDB, LCI, LCA, LCD, CRI, CRA, Debentures, Tesouro Direto, LFT, LTN, NTN-B, compromissadas)"},fundos:{type:"number",description:"Fundos de investimento abertos sem wrapper previdenciario: FIC, FIM, FIRF, Fundo Mutuo — EXCLUIR qualquer produto com Prev, VGBL, PGBL ou XP Seg no nome (esses sao previdencia) e EXCLUIR FIIs (tickers terminados em 11)"},prev:{type:"number",description:"Previdencia privada: VGBL, PGBL, e fundos com wrapper previdenciario (nomes com Prev, XP Seg Prev, Seg FIC, etc) mesmo que sejam FIC/FIM/FIRF — o indicador e a presenca de Prev mais seguradora no nome"},coe:{type:"number",description:"COE"},excluidos:{type:"number",description:"Acoes individuais (PETR4 etc), FIIs (tickers terminados em 11 como HGLG11, XPLG11, KNRI11), ETFs, BDRs — no extrato XP a categoria Fundos Listados sao FIIs e vao todos para excluidos"},rf_ano1:{type:"number",description:"RF vencendo em ate 12 meses"},rf_ano2:{type:"number",description:"RF vencendo entre 12 e 24 meses"}},required:["nome","rf","fundos","prev","coe","excluidos","rf_ano1","rf_ano2"]}}],
 tool_choice:{type:"tool",name:"parse_portfolio"},
-messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"Leia o extrato e chame parse_portfolio com os valores financeiros. Regras: (1) rf = soma de todos CDB, LCI, LCA, LCD, CRI, CRA, Debentures, Tesouro Direto, LFT, LTN, NTN-B, compromissadas. (2) fundos = soma de todos os produtos com a palavra Fundo no nome (ex: Fundo Mutuo, FIC, FIM, FIRF) independente da estrategia em que aparecem â EXCETO VGBL/PGBL. (3) prev = VGBL e PGBL. (4) excluidos = acoes individuais (PETR4 etc), FIIs, ETFs, BDRs. (5) Use ponto como separador decimal. (6) Valores nao encontrados = 0."}]}]
+messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:"Leia o extrato e chame parse_portfolio com os valores financeiros. Regras: (1) rf = soma de CDB, LCI, LCA, LCD, CRI, CRA, Debentures, Tesouro Direto, LFT, LTN, NTN-B, compromissadas. (2) fundos = fundos de investimento abertos SEM wrapper previdenciario: inclui FIC, FIM, FIRF, Fundo Mutuo no nome — MAS EXCLUI qualquer produto com Prev, VGBL, PGBL ou XP Seg no nome (esses sao previdencia, nao fundos); EXCLUI tambem FIIs (tickers terminados em 11). (3) prev = toda previdencia privada: VGBL, PGBL, e qualquer fundo com wrapper previdenciario como Prev XP Seg ou XP Seg Prev, mesmo que sejam FIC/FIM/FIRF — o indicador e a presenca de Prev mais nome de seguradora. (4) excluidos = acoes individuais (PETR4 etc), TODOS os FIIs (tickers XX11 como HGLG11, KNRI11, XPLG11), ETFs, BDRs — no extrato XP a categoria Fundos Listados sao FIIs e vao TODOS para excluidos, nunca para fundos. (5) Use ponto como separador decimal. (6) Valores nao encontrados = 0. ATENCAO CRITICA: cada ativo vai para UMA unica categoria — produto classificado como prev nao deve aparecer tambem em fundos."}]}]
 })});
 const res=await resp.json();
 if(!resp.ok)throw new Error("["+resp.status+"] "+(res.error?.message||JSON.stringify(res.error||res)));
@@ -366,10 +366,10 @@ if(data.coe!=null)document.getElementById("inp-co").value=data.coe||0;
 if(data.excluidos!=null)document.getElementById("inp-ex").value=data.excluidos||0;
 rfAno1=(data.rf_ano1!=null)?data.rf_ano1||0:0;
 rfAno2=(data.rf_ano2!=null)?data.rf_ano2||0:0;
-if(data.nome){const cn=document.getElementById("clientName");cn.textContent="â¸ "+data.nome.toUpperCase();cn.style.display="block";}
+if(data.nome){const cn=document.getElementById("clientName");cn.textContent="▸ "+data.nome.toUpperCase();cn.style.display="block";}
 update();triggerGlow();
 const tot=(data.rf||0)+(data.fundos||0)+(data.prev||0)+(data.coe||0)+(data.excluidos||0);
-setStatus("success","&#10003; "+(data.nome?data.nome+" Â· ":"")+"Total "+fmtR(tot),file.name);
+setStatus("success","&#10003; "+(data.nome?data.nome+" · ":"")+"Total "+fmtR(tot),file.name);
 }catch(e){setStatus("error","&#9888; "+e.message);}
 }
 update();
