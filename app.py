@@ -279,7 +279,7 @@ const annualGain=gSp+gRF+gRP;
 const roaD=val("inp-roa")/100;
 const container=document.getElementById("barChart");
 container.innerHTML="";
-const minBH*45,maxBH=140,minInner=20;
+const minBH=45,maxBH=140,minInner=20;
 for(let y=1;y<=5;y++){
 const feeT=base>0?base*fee*y:0;
 const roaCum=y>=2?(rfAno1+rfAno2)*roaD:rfAno1*roaD;
